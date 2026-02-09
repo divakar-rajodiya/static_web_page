@@ -1,108 +1,215 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <title>Print Label</title>
 
     <style>
-        @page { margin: 0; }
-        body { margin: 0; }
-
-        #label {
-            position: relative;
+        html, body {
+            margin: 0;
+            padding: 0;
             background: white;
         }
 
-        .label-text {
-            position: absolute;
-            white-space: pre;
+        #printRoot {
+            width: 100%;
+            height: 100%;
+            background: white;
         }
 
-        .label-image,
-        .label-barcode {
-            position: absolute;
+        img {
+            display: block;
         }
     </style>
 </head>
-<body>
 
-<div id="label"></div>
+<body>
+<div id="printRoot"></div>
 
 <script>
-    /**
-     * labelData MUST be injected before calling render()
-     * structure = EXACTLY what your backend returns
-     */
+    const DPI = 96;
 
-    function renderLabel(labelData) {
-        const label = document.getElementById('label');
+    function unitToInch(unit, value) {
+        if (!unit) return value;
+        unit = unit.toLowerCase();
 
-        const DPI = 96; // browser DPI
-        const widthPx = labelData.stage.width * DPI;
-        const heightPx = labelData.stage.height * DPI;
+        if (unit === "in") return value;
+        if (unit === "cm") return value / 2.54;
+        if (unit === "mm") return value / 25.4;
+        if (unit === "px") return value / DPI;
 
-        label.style.width = widthPx + 'px';
-        label.style.height = heightPx + 'px';
-
-        label.innerHTML = '';
-
-        labelData.elements.forEach(el => {
-
-            // 🔤 TEXT
-            if (el.type === 'text') {
-                const div = document.createElement('div');
-                div.className = 'label-text';
-                div.textContent = el.text;
-
-                div.style.left = el.x + 'px';
-                div.style.top = el.y + 'px';
-                div.style.fontSize = el.font.size + 'px';
-                div.style.fontFamily = el.font.family;
-                div.style.color = el.font.color;
-                div.style.transform = `rotate(${el.rotation || 0}deg)`;
-
-                label.appendChild(div);
-            }
-
-            // 🖼 IMAGE
-            if (el.type === 'image') {
-                const img = document.createElement('img');
-                img.className = 'label-image';
-                img.src = el.url;
-
-                img.style.left = el.x + 'px';
-                img.style.top = el.y + 'px';
-                img.style.width = el.width + 'px';
-                img.style.height = el.height + 'px';
-                img.style.transform = `rotate(${el.rotation || 0}deg)`;
-
-                label.appendChild(img);
-            }
-
-            // 🔳 BARCODE / QR (already base64 image)
-            if (el.type === 'barcode') {
-                const img = document.createElement('img');
-                img.className = 'label-barcode';
-                img.src = el.url;
-
-                img.style.left = el.x + 'px';
-                img.style.top = el.y + 'px';
-                img.style.width = el.width + 'px';
-                img.style.height = el.height + 'px';
-                img.style.transform = `rotate(${el.rotation || 0}deg)`;
-
-                label.appendChild(img);
-            }
-        });
-
-        setTimeout(() => window.print(), 300);
+        return value;
     }
 
-    // 👇 this will be called by parent window
-    window.renderAndPrint = function (labelJson) {
-        renderLabel(labelJson);
+    function loadImage(src) {
+        return new Promise((resolve) => {
+            const img = new Image();
+
+            // important if any url is external (CORS safe only if server allows it)
+            img.crossOrigin = "anonymous";
+
+            img.onload = () => resolve(img);
+            img.onerror = () => resolve(null);
+            img.src = src;
+        });
+    }
+
+    function injectPrintStyle(inchWidth, inchHeight) {
+        const old = document.getElementById("printStyle");
+        if (old) old.remove();
+
+        const style = document.createElement("style");
+        style.id = "printStyle";
+
+        style.innerHTML = `
+        @media print {
+          @page {
+            size: ${inchWidth}in ${inchHeight}in;
+            margin: 0;
+          }
+
+          html, body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: white;
+          }
+
+          #printRoot {
+            width: 100%;
+            height: 100%;
+          }
+
+          img {
+            width: calc(100% - 1px);
+            height: calc(100% - 1px);
+          }
+        }
+      `;
+
+        document.head.appendChild(style);
+    }
+
+    async function renderMarkupToCanvas(markup) {
+        const stage = markup.stage;
+
+        const inchWidth = unitToInch(stage.unit, stage.width);
+        const inchHeight = unitToInch(stage.unit, stage.height);
+
+        const SCALE = 3; // 🔥 increase quality (2 or 3 recommended)
+
+        const canvasWidth = Math.floor(inchWidth * DPI * SCALE);
+        const canvasHeight = Math.floor(inchHeight * DPI * SCALE);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+
+        const ctx = canvas.getContext("2d");
+
+        // scale drawing to match original coordinates
+        ctx.scale(SCALE, SCALE);
+
+        // background
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, inchWidth * DPI, inchHeight * DPI);
+
+        const elements = markup.elements || [];
+
+        for (const el of elements) {
+            if (el.type === "text") {
+                const fontSize = el.font?.size || 14;
+                const fontFamily = el.font?.family || "Arial";
+                const fontStyle = el.font?.style || "normal";
+                const color = el.font?.color || "#000000";
+
+                ctx.save();
+
+                ctx.globalAlpha = el.opacity ?? 1;
+
+                ctx.translate(el.x, el.y);
+
+                const rotation = (el.rotation || 0) * Math.PI / 180;
+                ctx.rotate(rotation);
+
+                const scaleX = el.scaleX || 1;
+                const scaleY = el.scaleY || 1;
+                ctx.scale(scaleX, scaleY);
+
+                ctx.fillStyle = color;
+                ctx.font = `${fontStyle} ${fontSize}px ${fontFamily}`;
+                ctx.textBaseline = "top";
+
+                ctx.fillText(el.text || "", 0, 0);
+
+                ctx.restore();
+            }
+
+            if (el.type === "image" || el.type === "barcode") {
+                const img = await loadImage(el.url);
+                if (!img) continue;
+
+                ctx.save();
+
+                ctx.globalAlpha = el.opacity ?? 1;
+
+                ctx.translate(el.x, el.y);
+
+                const rotation = (el.rotation || 0) * Math.PI / 180;
+                ctx.rotate(rotation);
+
+                const scaleX = el.scaleX || 1;
+                const scaleY = el.scaleY || 1;
+                ctx.scale(scaleX, scaleY);
+
+                const w = el.width || img.width;
+                const h = el.height || img.height;
+
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = "high";
+
+                ctx.drawImage(img, 0, 0, w, h);
+
+                ctx.restore();
+            }
+        }
+
+        return {
+            canvas,
+            inchWidth,
+            inchHeight
+        };
+    }
+
+
+    async function printMarkup(markup) {
+        const root = document.getElementById("printRoot");
+        root.innerHTML = "";
+
+        const { canvas, inchWidth, inchHeight } = await renderMarkupToCanvas(markup);
+
+        // Convert canvas to image
+        const img = new Image();
+        img.src = canvas.toDataURL("image/png");
+
+        // Same trick used in React (avoid clipping)
+        img.style.width = "calc(100% - 1px)";
+        img.style.height = "calc(100% - 1px)";
+
+        root.appendChild(img);
+
+        injectPrintStyle(inchWidth, inchHeight);
+
+        setTimeout(() => {
+            window.print();
+        }, 200);
+    }
+
+    // called from test_label.html iframe
+    window.renderAndPrint = async function (markup) {
+        console.log("Received markup:", markup);
+        await printMarkup(markup);
     };
 </script>
-
 </body>
 </html>

@@ -147,7 +147,8 @@
   </tbody>
 </table>
 
-
+<script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
+<link rel="stylesheet" href="https://printjs-4de6.kxcdn.com/print.min.css">
 <script>
   function printLabel(button) {
     const row = button.closest('tr');
@@ -186,7 +187,12 @@
               if (!iframe) {
                 iframe = document.createElement('iframe');
                 iframe.id = 'print_iframe';
-                iframe.style.display = 'none';
+                iframe.style.position = "fixed";
+                iframe.style.right = "0";
+                iframe.style.bottom = "0";
+                iframe.style.width = "0";
+                iframe.style.height = "0";
+                iframe.style.border = "0";
                 document.body.appendChild(iframe);
               }
 
@@ -196,7 +202,7 @@
               };
 
               // 4️⃣ Load standalone renderer page
-              iframe.src = './print-label.html'; // SAME FOLDER
+              iframe.src = "./print-label.html?" + new Date().getTime();
             });
   }
 </script>
