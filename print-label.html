@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <title>Print Label</title>
 
     <style>
@@ -253,7 +253,7 @@
         const root = document.getElementById("printRoot");
         root.innerHTML = "";
 
-        const { canvas, inchWidth, inchHeight } = await renderMarkupToCanvas(markup);
+        const {canvas, inchWidth, inchHeight} = await renderMarkupToCanvas(markup);
 
         const img = new Image();
         img.src = canvas.toDataURL("image/png");
