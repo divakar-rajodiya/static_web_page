@@ -189,39 +189,54 @@
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                userId: 2,
-                label_name: apiData?.label_name,
+                username: "Demo1000",
+                password: "Demo1000",
+                label_name: apiData.label_name,
                 amount: 1,
                 apiData: apiData
             })
         })
-            .then(res => res.json())
-            .then(markups => {
+            .then(async res => {
+                const data = await res.json();
 
-                // 🔴 backend returns ARRAY → take first label
+                if (!res.ok) {
+                    const message =
+                        data?.message ||
+                        data?.error ||
+                        'Something went wrong while printing label';
+
+                    throw new Error(message);
+                }
+
+                return data;
+            })
+            .then(markups => {
+                if (!Array.isArray(markups) || markups.length === 0) {
+                    throw new Error('No label data returned from server');
+                }
+
                 const labelJson = markups[0];
 
-                // 2️⃣ Create iframe (once)
                 let iframe = document.getElementById('print_iframe');
                 if (!iframe) {
                     iframe = document.createElement('iframe');
                     iframe.id = 'print_iframe';
                     iframe.style.position = "fixed";
-                    iframe.style.right = "0";
-                    iframe.style.bottom = "0";
                     iframe.style.width = "0";
                     iframe.style.height = "0";
                     iframe.style.border = "0";
                     document.body.appendChild(iframe);
                 }
 
-                // 3️⃣ When print-label.html is loaded, pass JSON
                 iframe.onload = function () {
                     iframe.contentWindow.renderAndPrint(labelJson);
                 };
 
-                // 4️⃣ Load standalone renderer page
-                iframe.src = "./print-label.html?" + new Date().getTime();
+                iframe.src = "./print-label.html?" + Date.now();
+            })
+            .catch(err => {
+                console.error('Print error:', err);
+                alert(err.message);
             });
     }
 </script>
