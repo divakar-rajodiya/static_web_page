@@ -15,8 +15,8 @@
 
     QCIMLabelSDK.config = {
         apiBaseUrl: "",
-        username: "",
-        password: "",
+        api_key: "",
+        api_token: "",
         printPageUrl: "./print-label.html",
         debug: false,
     };
@@ -54,10 +54,10 @@
     }
 
     async function fetchMarkup({ label_name, amount, apiData }) {
-        const { apiBaseUrl, username, password } = QCIMLabelSDK.config;
+        const { apiBaseUrl, api_key,api_token, password } = QCIMLabelSDK.config;
 
         if (!apiBaseUrl) throw new Error("apiBaseUrl is missing in config.");
-        if (!username || !password) throw new Error("username/password missing in config.");
+        if (!api_key || !api_token) throw new Error("api key/api token missing in config.");
         if (!label_name) throw new Error("label_name is required.");
         if (!amount || amount < 1) throw new Error("amount must be at least 1.");
 
@@ -67,10 +67,11 @@
 
         const res = await fetch(url, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json",
+                "X-API-KEY": api_key,
+                "X-API-SECRET": api_token
+            },
             body: JSON.stringify({
-                username,
-                password,
                 label_name,
                 amount,
                 apiData,
