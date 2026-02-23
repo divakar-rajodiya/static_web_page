@@ -181,6 +181,46 @@
         document.head.appendChild(style);
     }
 
+    function generateBarcodeImage(format, text, width = 200, height = 200) {
+        return new Promise((resolve) => {
+            try {
+                const canvas = document.createElement("canvas");
+
+                // bwip-js uses different names than your UI sometimes
+                const formatMap = {
+                    qrcode: 'qrcode',
+                    'qr code': 'qrcode',
+                    code128: 'code128',
+                    code39: 'code39',
+                    ean13: 'ean13',
+                    ean8: 'ean8',
+                    isbn: 'isbn',
+                    ismn: 'ismn',
+                    issn: 'issn',
+                    pdf417: 'pdf417',
+                    datamatrix: 'datamatrix',
+                };
+
+                const bcid = formatMap[format?.toLowerCase()] || format?.toLowerCase();
+
+                bwipjs.toCanvas(canvas, {
+                    bcid,          // Barcode type
+                    text: text,    // Data
+                    scale: 3,
+                    height: height / 3,
+                    includetext: false,
+                });
+
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.src = canvas.toDataURL("image/png");
+            } catch (e) {
+                console.error("Barcode generation failed:", format, e);
+                resolve(null);
+            }
+        });
+    }
+
     async function renderMarkupToCanvas(markup) {
         const stage = markup.stage;
 
@@ -232,29 +272,37 @@
                 ctx.restore();
             }
 
-            // IMAGE / BARCODE
-            if (el.type === "image" || el.type === "barcode") {
+            if (el.type === "image") {
                 const img = await loadImage(el.url);
                 if (!img) continue;
 
                 ctx.save();
-
                 ctx.globalAlpha = el.opacity ?? 1;
                 ctx.translate(el.x || 0, el.y || 0);
+                ctx.rotate(((el.rotation || 0) * Math.PI) / 180);
+                ctx.scale(el.scaleX || 1, el.scaleY || 1);
+                ctx.drawImage(img, 0, 0, el.width, el.height);
+                ctx.restore();
+            }
 
-                const rotation = (el.rotation || 0) * Math.PI / 180;
-                ctx.rotate(rotation);
+            // BARCODE — FORMAT AWARE (CORRECT)
+            if (el.type === "barcode") {
+                const img = await generateBarcodeImage(
+                  el.format,
+                  el.text || "",
+                  el.width || 200,
+                  el.height || 200
+                );
 
+                if (!img) continue;
+
+                ctx.save();
+                ctx.globalAlpha = el.opacity ?? 1;
+                ctx.translate(el.x || 0, el.y || 0);
+                ctx.rotate(((el.rotation || 0) * Math.PI) / 180);
                 ctx.scale(el.scaleX || 1, el.scaleY || 1);
 
-                const w = el.width || img.width;
-                const h = el.height || img.height;
-
-                ctx.imageSmoothingEnabled = true;
-                ctx.imageSmoothingQuality = "high";
-
-                ctx.drawImage(img, 0, 0, w, h);
-
+                ctx.drawImage(img, 0, 0, el.width, el.height);
                 ctx.restore();
             }
 
