@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quandosol Custom Label Printing API – Full Documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            font-family: Inter, Arial, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            margin: 0;
+        }
+        header {
+            background: #020617;
+            color: #fff;
+            padding: 40px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+        header p {
+            margin-top: 10px;
+            color: #cbd5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 40px;
+        }
+        h2 {
+            margin-top: 48px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+        h3 {
+            margin-top: 24px;
+        }
+        p, li {
+            line-height: 1.7;
+        }
+        code {
+            background: #e5e7eb;
+            padding: 3px 6px;
+            border-radius: 4px;
+        }
+        pre {
+            background: #020617;
+            color: #e5e7eb;
+            padding: 18px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 10px;
+        }
+        th {
+            background: #f1f5f9;
+        }
+        .note {
+            background: #fff7ed;
+            border-left: 4px solid #fb923c;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .warn {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .success {
+            background: #ecfeff;
+            border-left: 4px solid #06b6d4;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        footer {
+            background: #020617;
+            color: #94a3b8;
+            text-align: center;
+            padding: 30px;
+            margin-top: 80px;
+        }
+        a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Quandosol Custom Label Printing API</h1>
+    <p>Design labels inside Quandosol · Print dynamically from your own website</p>
+</header>
+
+<div class="container">
+
+    <h2>1. Introduction</h2>
+    <p>
+        Quandosol is a SaaS platform for designing, managing, and printing labels.
+        This API allows customers to print labels <strong>outside of the Quandosol UI</strong>
+        using their own applications while still using Quandosol’s label designer.
+    </p>
+
+    <h2>2. Eligibility & Access Control</h2>
+    <ul>
+        <li>Advanced Plan subscription is required</li>
+        <li>API key and API token must be generated from the API Credential module</li>
+        <li>API token is visible only once</li>
+        <li>Regenerating a token invalidates the old one</li>
+    </ul>
+
+    <h2>3. Core Concept – API Variables</h2>
+    <p>
+        Customers define <strong>API variables</strong> inside the label design instead of binding labels
+        to items, CSVs, or API URLs.
+    </p>
+
+    <pre>{IMEI}
+{Model_No}
+{Serial_No}
+{GT_Battery_Ratio}</pre>
+
+    <p>
+        Values for these variables are sent at print time via <code>apiData</code>.
+        Quandosol replaces them dynamically before printing.
+    </p>
+
+    <h2>4. High-Level Printing Flow</h2>
+    <ol>
+        <li>Client sends print request</li>
+        <li>API validates credentials</li>
+        <li>Plan & limits are checked</li>
+        <li>Label is fetched by name</li>
+        <li>Variables are replaced</li>
+        <li>Print records are created</li>
+        <li>Final markup JSON is generated</li>
+        <li>SDK renders markup</li>
+        <li>Browser print dialog opens</li>
+    </ol>
+
+    <h2>5. API Endpoint</h2>
+    <pre>POST https://app.quandosol.com/api/custom-labels/print</pre>
+
+    <h2>6. Authentication Headers</h2>
+    <table>
+        <tr><th>Header</th><th>Description</th></tr>
+        <tr><td>X-API-KEY</td><td>API Key</td></tr>
+        <tr><td>X-API-SECRET</td><td>API Token</td></tr>
+    </table>
+
+    <h2>7. Request Body Parameters</h2>
+    <table>
+        <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+        <tr><td>label_name</td><td>string</td><td>Yes</td><td>Exact label name in Quandosol</td></tr>
+        <tr><td>amount</td><td>integer</td><td>Yes</td><td>Minimum 1</td></tr>
+        <tr><td>apiData</td><td>object</td><td>Yes</td><td>Dynamic label variables</td></tr>
+    </table>
+
+    <h2>8. Example API Request</h2>
+    <pre>{
+  "label_name": "Label A",
+  "amount": 1,
+  "apiData": {
+    "IMEI": "356938035643809",
+    "Model_No": "iPhone 13",
+    "Serial_No": "SN-A12345",
+    "GT_Battery_Ratio": "92%"
+  }
+}</pre>
+
+    <h2>9. SDK Architecture</h2>
+    <p>The SDK works in two execution contexts:</p>
+    <ul>
+        <li>Main page – API request & iframe trigger</li>
+        <li>Print page – canvas rendering & printing</li>
+    </ul>
+
+    <h2>10. Files Required (With Examples)</h2>
+    <ul>
+        <li>
+            <strong>qcim-label-sdk.js</strong><br>
+            <a href="https://app.quandosol.com/qcim-label-sdk.js" target="_blank">
+                https://app.quandosol.com/qcim-label-sdk.js
+            </a>
+        </li>
+
+        <li>
+            <strong>test_label.html</strong><br>
+            <a href="https://app.quandosol.com/test_label.html" target="_blank">
+                https://app.quandosol.com/test_label.html
+            </a>
+        </li>
+
+        <li>
+            <strong>print-label.html</strong><br>
+            <p>This file runs inside a hidden iframe and renders the label for printing.</p>
+
+            <pre>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"/&gt;
+    &lt;title&gt;Print Label&lt;/title&gt;
+
+    &lt;style&gt;
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: white;
+        }
+
+        #printRoot {
+            width: 100%;
+            height: 100%;
+            background: white;
+        }
+
+        img {
+            display: block;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+
+&lt;div id="printRoot"&gt;&lt;/div&gt;
+
+&lt;script src="https://unpkg.com/bwip-js/dist/bwip-js-min.js"&gt;&lt;/script&gt;
+&lt;script src="./qcim-label-sdk.js"&gt;&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+        </li>
+    </ul>
+
+    <h2>11. SDK Configuration</h2>
+    <pre>QCIMLabelSDK.setConfig({
+  apiBaseUrl: "https://app.quandosol.com/api",
+  api_key: "YOUR_API_KEY",
+  api_token: "YOUR_API_TOKEN",
+  printPageUrl: "./print-label.html",
+  debug: true
+});</pre>
+
+    <h2>12. Print Trigger Example</h2>
+    <pre>QCIMLabelSDK.printLabel({
+  label_name: "Label A",
+  amount: 1,
+  apiData: {
+    IMEI: "356938035643809",
+    Model_No: "iPhone 13"
+  }
+});</pre>
+
+    <h2>13. Barcode & Image Support</h2>
+    <p>
+        Supports QR Code, Code128, Code39, EAN, PDF417, DataMatrix and more.
+        Rendered using <code>bwip-js</code>.
+    </p>
+
+    <h2>14. Browser Requirements</h2>
+    <ul>
+        <li>Chrome</li>
+        <li>Edge</li>
+        <li>Firefox</li>
+    </ul>
+
+    <div class="note">
+        Printing works only in browsers due to iframe + canvas rendering.
+    </div>
+
+    <h2>15. CORS Policy</h2>
+    <pre>https://app.quandosol.com/api/custom-labels/print</pre>
+
+    <h2>16. Security Warning</h2>
+    <div class="warn">
+        Never expose API credentials in public websites.
+        Use a backend proxy for production usage.
+    </div>
+
+    <h2>17. Live Demo</h2>
+    <pre>https://app.quandosol.com/test_label.html</pre>
+
+    <h2>18. Troubleshooting</h2>
+    <ul>
+        <li>Ensure label_name exists</li>
+        <li>Ensure apiData keys match variables</li>
+        <li>Disable popup blockers</li>
+        <li>Ensure external images are publicly accessible</li>
+    </ul>
+
+    <div class="success">
+        This API enables fully dynamic, external label printing using Quandosol.
+    </div>
+
+</div>
+
+<footer>
+    © 2026 Quandosol · Custom Label Printing API
+</footer>
+
+</body>
+</html>
