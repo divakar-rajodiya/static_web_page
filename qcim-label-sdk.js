@@ -91,27 +91,75 @@
         return data;
     }
 
+    async function printNodePrint({ label_name, amount, apiData, printer_id }) {
+        const { apiBaseUrl, api_key,api_token, password } = QCIMLabelSDK.config;
+
+        if (!apiBaseUrl) throw new Error("apiBaseUrl is missing in config.");
+        if (!api_key || !api_token) throw new Error("api key/api token missing in config.");
+        if (!label_name) throw new Error("label_name is required.");
+        if (!amount || amount < 1) throw new Error("amount must be at least 1.");
+
+        const url = `${apiBaseUrl}/custom-labels/print-node`;
+
+        log("Calling Print node API:", url);
+
+        const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json",
+                "X-API-KEY": api_key,
+                "X-API-SECRET": api_token
+            },
+            body: JSON.stringify({
+                label_name,
+                amount,
+                apiData,
+                printer_id,
+            }),
+        });
+
+        const data = await res.json();
+
+        console.log("data --=--------",data);
+
+
+        if (!res.ok) {
+            throw new Error(data?.message || data?.error || "Failed to print label");
+        }
+
+        return data;
+    }
+
     QCIMLabelSDK.printLabel = async function ({
                                                   label_name,
                                                   amount = 1,
                                                   apiData = {},
+                                                  mode = "browser",
+                                                  printer_id = null
                                               }) {
         try {
-            const markups = await fetchMarkup({ label_name, amount, apiData });
-            const markup = markups[0];
+            if (mode === "printnode") {
+                console.log("inside print node ");
+                const response = await printNodePrint({ label_name, amount, apiData, printer_id });
+                console.log("response =======",response);
 
-            const iframe = getPrintIframe();
+                alert("Sent to printer successfully");
+            } else {
+                const markups = await fetchMarkup({ label_name, amount, apiData });
+                const markup = markups[0];
 
-            iframe.onload = function () {
-                if (!iframe.contentWindow || !iframe.contentWindow.renderAndPrint) {
-                    alert("renderAndPrint() is not found inside print-label.html");
-                    return;
-                }
+                const iframe = getPrintIframe();
 
-                iframe.contentWindow.renderAndPrint(markup);
-            };
+                iframe.onload = function () {
+                    if (!iframe.contentWindow || !iframe.contentWindow.renderAndPrint) {
+                        alert("renderAndPrint() is not found inside print-label.html");
+                        return;
+                    }
 
-            iframe.src = QCIMLabelSDK.config.printPageUrl + "?" + Date.now();
+                    iframe.contentWindow.renderAndPrint(markup);
+                };
+
+                iframe.src = QCIMLabelSDK.config.printPageUrl + "?" + Date.now();
+            }
         } catch (err) {
             console.error("[QCIM LABEL SDK ERROR]", err);
             alert(err.message);

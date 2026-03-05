@@ -56,6 +56,7 @@
         <th>Functional Results</th>
         <th>Reg Model Number</th>
         <th>Action</th>
+        <th>Print Node</th>
     </tr>
     </thead>
 
@@ -72,6 +73,7 @@
         <td>Pass</td>
         <td>A2633</td>
         <td><button onclick="printLabel(this)">Print</button></td>
+        <td><button onclick="printNodeLabel(this)">Print Node</button></td>
     </tr>
 
     <tr>
@@ -86,6 +88,7 @@
         <td>Pass</td>
         <td>A2403</td>
         <td><button onclick="printLabel(this)">Print</button></td>
+        <td><button onclick="printNodeLabel(this)">Print Node</button></td>
     </tr>
 
     <tr>
@@ -100,6 +103,7 @@
         <td>Pass</td>
         <td>A2633</td>
         <td><button onclick="printLabel(this)">Print</button></td>
+        <td><button onclick="printNodeLabel(this)">Print Node</button></td>
     </tr>
     <tr>
         <td>Label D</td>
@@ -113,6 +117,7 @@
         <td>Pass</td>
         <td>SM-G991B</td>
         <td><button onclick="printLabel(this)">Print</button></td>
+        <td><button onclick="printNodeLabel(this)">Print Node</button></td>
     </tr>
 
     <tr>
@@ -127,6 +132,7 @@
         <td>Pass</td>
         <td>SM-S901B</td>
         <td><button onclick="printLabel(this)">Print</button></td>
+        <td><button onclick="printNodeLabel(this)">Print Node</button></td>
     </tr>
 
     <tr>
@@ -141,6 +147,7 @@
         <td>Pass</td>
         <td>SM-S911B</td>
         <td><button onclick="printLabel(this)">Print</button></td>
+        <td><button onclick="printNodeLabel(this)">Print Node</button></td>
     </tr>
 
     <tr>
@@ -155,6 +162,7 @@
         <td>Pass</td>
         <td>GB7N6</td>
         <td><button onclick="printLabel(this)">Print</button></td>
+        <td><button onclick="printNodeLabel(this)">Print Node</button></td>
     </tr>
 
     <tr>
@@ -169,6 +177,7 @@
         <td>Pass</td>
         <td>GVU6C</td>
         <td><button onclick="printLabel(this)">Print</button></td>
+        <td><button onclick="printNodeLabel(this)">Print Node</button></td>
     </tr>
 
     <tr>
@@ -183,6 +192,7 @@
         <td>Pass</td>
         <td>NE2215</td>
         <td><button onclick="printLabel(this)">Print</button></td>
+        <td><button onclick="printNodeLabel(this)">Print Node</button></td>
     </tr>
 
     <tr>
@@ -197,6 +207,8 @@
         <td>Pass</td>
         <td>M2011K2C</td>
         <td><button onclick="printLabel(this)">Print</button></td>
+        <td><button onclick="printNodeLabel(this)">Print Node</button></td>
+    </tr>
     </tbody>
 </table>
 
@@ -210,7 +222,8 @@
         api_key: "yqjHWY8M1MBUdF82cq2EoH4lsuBg8Xwa",
         api_token: "rvcgcHYJzOz2wzsVKRAQP8XgR3AMth5e4RBtS5y8BOUhxDiFQVlvjI6gv6LYcUb4",
         printPageUrl: "./print-label.html",
-        debug: true
+        debug: true,
+        mode: "browser", // or "printnode"
     });
 
     function printLabel(button) {
@@ -233,8 +246,35 @@
         QCIMLabelSDK.printLabel({
             label_name: apiData.label_name,
             amount: 1,
-            apiData: apiData
+            apiData: apiData,
+            mode: "browser",
         });
+    }
+
+    function printNodeLabel(button) {
+      const row = button.closest("tr");
+      const cells = row.querySelectorAll("td");
+
+      const apiData = {
+        label_name: cells[0].innerText.trim(),
+        IMEI: cells[1].innerText.trim(),
+        Model_No: cells[2].innerText.trim(),
+        Serial_No: cells[3].innerText.trim(),
+        GT_Battery_Ratio: cells[4].innerText.trim(),
+        Data_Wipe: cells[5].innerText.trim(),
+        Carriers: cells[6].innerText.trim(),
+        GT_Black_List: cells[7].innerText.trim(),
+        Functional_Results: cells[8].innerText.trim(),
+        Reg_Model_Number: cells[9].innerText.trim(),
+      };
+
+      QCIMLabelSDK.printLabel({
+        label_name: apiData.label_name,
+        amount: 1,
+        apiData: apiData,
+        mode: "printnode",
+        printer_id: 75236019 // change to real printer id
+      });
     }
 </script>
 
