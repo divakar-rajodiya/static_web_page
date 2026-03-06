@@ -91,7 +91,7 @@
         return data;
     }
 
-    async function printNodePrint({ label_name, amount, apiData, printer_id }) {
+    async function printNodeZplPrint({ label_name, amount, apiData, printer_id }) {
         const { apiBaseUrl, api_key,api_token, password } = QCIMLabelSDK.config;
 
         if (!apiBaseUrl) throw new Error("apiBaseUrl is missing in config.");
@@ -129,6 +129,45 @@
         return data;
     }
 
+    async function printNodeImagePrint({ label_name, amount, apiData, printer_id }) {
+        const { apiBaseUrl, api_key,api_token, password } = QCIMLabelSDK.config;
+
+        if (!apiBaseUrl) throw new Error("apiBaseUrl is missing in config.");
+        if (!api_key || !api_token) throw new Error("api key/api token missing in config.");
+        if (!label_name) throw new Error("label_name is required.");
+        if (!amount || amount < 1) throw new Error("amount must be at least 1.");
+
+        const url = `${apiBaseUrl}/custom-labels/print-node-png`;
+
+        log("Calling Print node Image API:", url);
+
+        const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json",
+                "X-API-KEY": api_key,
+                "X-API-SECRET": api_token
+            },
+            body: JSON.stringify({
+                label_name,
+                amount,
+                apiData,
+                printer_id,
+            }),
+        });
+
+        const data = await res.json();
+
+        console.log("data --=--------",data);
+
+
+        if (!res.ok) {
+            throw new Error(data?.message || data?.error || "Failed to print label");
+        }
+
+        return data;
+    }
+
+
     QCIMLabelSDK.printLabel = async function ({
                                                   label_name,
                                                   amount = 1,
@@ -137,9 +176,15 @@
                                                   printer_id = null
                                               }) {
         try {
-            if (mode === "printnode") {
+            if (mode === "printNodeZpl") {
                 console.log("inside print node ");
-                const response = await printNodePrint({ label_name, amount, apiData, printer_id });
+                const response = await printNodeZplPrint({ label_name, amount, apiData, printer_id });
+                console.log("response =======",response);
+
+                alert("Sent to printer successfully");
+            } else if (mode === "printNodeImage") {
+                console.log("inside print node ");
+                const response = await printNodeImagePrint({ label_name, amount, apiData, printer_id });
                 console.log("response =======",response);
 
                 alert("Sent to printer successfully");
