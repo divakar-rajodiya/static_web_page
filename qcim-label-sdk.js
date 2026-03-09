@@ -339,12 +339,13 @@
 
         for (const el of elements) {
 
-            // TEXT
+            // TEXT (supports multi-line via \n)
             if (el.type === "text") {
                 const fontSize = el.font?.size || 14;
                 const fontFamily = el.font?.family || "Arial";
                 const fontStyle = el.font?.style || "normal";
                 const color = el.font?.color || "#000000";
+                const align = el.align || "left";
 
                 ctx.save();
 
@@ -359,8 +360,14 @@
                 ctx.fillStyle = color;
                 ctx.font = `${fontStyle} ${fontSize}px ${fontFamily}`;
                 ctx.textBaseline = "top";
+                ctx.textAlign = align;
 
-                ctx.fillText(el.text || "", 0, 0);
+                const lines = (el.text || "").split("\n");
+                const lineHeight = fontSize * 1.2;
+
+                lines.forEach((line, i) => {
+                    ctx.fillText(line.trim(), 0, i * lineHeight);
+                });
 
                 ctx.restore();
             }
@@ -456,6 +463,149 @@
                     ctx.strokeRect(0, 0, el.width || 0, el.height || 0);
                 }
 
+                ctx.restore();
+            }
+
+            // CIRCLE
+            if (el.type === "circle") {
+                ctx.save();
+                ctx.globalAlpha = el.opacity ?? 1;
+                ctx.translate(el.x || 0, el.y || 0);
+                ctx.rotate(((el.rotation || 0) * Math.PI) / 180);
+                ctx.scale(el.scaleX || 1, el.scaleY || 1);
+
+                const r = el.radius || 10;
+                ctx.beginPath();
+                ctx.arc(0, 0, r, 0, Math.PI * 2);
+
+                if (el.fill && el.fill !== "transparent") {
+                    ctx.fillStyle = el.fill;
+                    ctx.fill();
+                }
+                if (el.stroke) {
+                    ctx.strokeStyle = el.stroke;
+                    ctx.lineWidth = el.strokeWidth || 1;
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+
+            // ELLIPSE
+            if (el.type === "ellipse") {
+                ctx.save();
+                ctx.globalAlpha = el.opacity ?? 1;
+                ctx.translate(el.x || 0, el.y || 0);
+                ctx.rotate(((el.rotation || 0) * Math.PI) / 180);
+                ctx.scale(el.scaleX || 1, el.scaleY || 1);
+
+                const rx = el.radiusX || 20;
+                const ry = el.radiusY || 10;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+
+                if (el.fill && el.fill !== "transparent") {
+                    ctx.fillStyle = el.fill;
+                    ctx.fill();
+                }
+                if (el.stroke) {
+                    ctx.strokeStyle = el.stroke;
+                    ctx.lineWidth = el.strokeWidth || 1;
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+
+            // WEDGE (pie slice) — Konva draws from angle 0 (right/east), rotation rotates whole shape
+            if (el.type === "wedge") {
+                ctx.save();
+                ctx.globalAlpha = el.opacity ?? 1;
+                ctx.translate(el.x || 0, el.y || 0);
+                // Konva rotation is in degrees, applied to the whole shape
+                ctx.rotate(((el.rotation || 0) * Math.PI) / 180);
+                ctx.scale(el.scaleX || 1, el.scaleY || 1);
+
+                const radius = el.radius || 50;
+                const angleRad = ((el.angle || 60) * Math.PI) / 180;
+
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                // Konva Wedge starts at 0 radians (east/right) and sweeps clockwise
+                ctx.arc(0, 0, radius, 0, angleRad);
+                ctx.closePath();
+
+                if (el.fill && el.fill !== "transparent") {
+                    ctx.fillStyle = el.fill;
+                    ctx.fill();
+                }
+                if (el.stroke) {
+                    ctx.strokeStyle = el.stroke;
+                    ctx.lineWidth = el.strokeWidth || 1;
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+
+            // RING (donut shape)
+            if (el.type === "ring") {
+                ctx.save();
+                ctx.globalAlpha = el.opacity ?? 1;
+                ctx.translate(el.x || 0, el.y || 0);
+                ctx.rotate(((el.rotation || 0) * Math.PI) / 180);
+                ctx.scale(el.scaleX || 1, el.scaleY || 1);
+
+                const outerR = el.outerRadius || 20;
+                const innerR = el.innerRadius || 10;
+
+                if (el.fill && el.fill !== "transparent") {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, outerR, 0, Math.PI * 2, false);
+                    ctx.arc(0, 0, innerR, 0, Math.PI * 2, true);
+                    ctx.fillStyle = el.fill;
+                    ctx.fill("evenodd");
+                }
+                if (el.stroke) {
+                    ctx.strokeStyle = el.stroke;
+                    ctx.lineWidth = el.strokeWidth || 1;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, outerR, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(0, 0, innerR, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+
+            // ARC (partial thick arc / donut segment — Konva Arc shape)
+            // Konva Arc starts at 0° (east/right) and sweeps clockwise by `angle` degrees
+            if (el.type === "arc") {
+                ctx.save();
+                ctx.globalAlpha = el.opacity ?? 1;
+                ctx.translate(el.x || 0, el.y || 0);
+                ctx.rotate(((el.rotation || 0) * Math.PI) / 180);
+                ctx.scale(el.scaleX || 1, el.scaleY || 1);
+
+                const outerR = el.outerRadius || 40;
+                const innerR = el.innerRadius || 20;
+                const sweepAngle = ((el.angle || 90) * Math.PI) / 180;
+                const startAngle = 0; // Konva Arc starts at 0° (east)
+                const endAngle = startAngle + sweepAngle;
+
+                // Outer arc clockwise, inner arc counter-clockwise to close the band
+                ctx.beginPath();
+                ctx.arc(0, 0, outerR, startAngle, endAngle, false);
+                ctx.arc(0, 0, innerR, endAngle, startAngle, true);
+                ctx.closePath();
+
+                if (el.fill && el.fill !== "transparent") {
+                    ctx.fillStyle = el.fill;
+                    ctx.fill();
+                }
+                if (el.stroke) {
+                    ctx.strokeStyle = el.stroke;
+                    ctx.lineWidth = el.strokeWidth || 1;
+                    ctx.stroke();
+                }
                 ctx.restore();
             }
         }
