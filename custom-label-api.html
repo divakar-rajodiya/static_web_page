@@ -6,97 +6,150 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
-        body {
-            font-family: Inter, Arial, sans-serif;
-            background: #f8fafc;
-            color: #0f172a;
-            margin: 0;
+        .code-container{
+            position:relative;
         }
-        header {
-            background: #020617;
-            color: #fff;
-            padding: 40px;
+
+        .copy-btn{
+            position:absolute;
+            top:10px;
+            right:10px;
+            background:#2563eb;
+            color:white;
+            border:none;
+            padding:6px 10px;
+            font-size:12px;
+            border-radius:6px;
+            cursor:pointer;
         }
-        header h1 {
-            margin: 0;
-            font-size: 30px;
+
+        .copy-btn:hover{
+            background:#1d4ed8;
         }
-        header p {
-            margin-top: 10px;
-            color: #cbd5f5;
+
+        .copy-btn.copied{
+            background:#16a34a;
         }
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            padding: 40px;
+
+        body{
+            font-family:Inter,Arial,sans-serif;
+            background:#f8fafc;
+            color:#0f172a;
+            margin:0;
         }
-        h2 {
-            margin-top: 48px;
-            border-bottom: 2px solid #e5e7eb;
-            padding-bottom: 8px;
+
+        header{
+            background:#020617;
+            color:#fff;
+            padding:40px;
         }
-        h3 {
-            margin-top: 24px;
+
+        header h1{
+            margin:0;
+            font-size:30px;
         }
-        p, li {
-            line-height: 1.7;
+
+        header p{
+            margin-top:10px;
+            color:#cbd5f5;
         }
-        code {
-            background: #e5e7eb;
-            padding: 3px 6px;
-            border-radius: 4px;
+
+        .container{
+            max-width:1200px;
+            margin:auto;
+            padding:40px;
         }
-        pre {
-            background: #020617;
-            color: #e5e7eb;
-            padding: 18px;
-            border-radius: 8px;
-            overflow-x: auto;
+
+        h2{
+            margin-top:48px;
+            border-bottom:2px solid #e5e7eb;
+            padding-bottom:8px;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 16px;
+
+        h3{
+            margin-top:28px;
         }
-        th, td {
-            border: 1px solid #e5e7eb;
-            padding: 10px;
+
+        p,li{
+            line-height:1.7;
         }
-        th {
-            background: #f1f5f9;
+
+        code{
+            background:#e5e7eb;
+            padding:3px 6px;
+            border-radius:4px;
         }
-        .note {
-            background: #fff7ed;
-            border-left: 4px solid #fb923c;
-            padding: 16px;
-            margin-top: 16px;
+
+        pre{
+            background:#020617;
+            color:#e5e7eb;
+            padding:18px;
+            border-radius:8px;
+            overflow-x:auto;
         }
-        .warn {
-            background: #fee2e2;
-            border-left: 4px solid #ef4444;
-            padding: 16px;
-            margin-top: 16px;
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:16px;
         }
-        .success {
-            background: #ecfeff;
-            border-left: 4px solid #06b6d4;
-            padding: 16px;
-            margin-top: 16px;
+
+        th,td{
+            border:1px solid #e5e7eb;
+            padding:10px;
         }
-        footer {
-            background: #020617;
-            color: #94a3b8;
-            text-align: center;
-            padding: 30px;
-            margin-top: 80px;
+
+        th{
+            background:#f1f5f9;
         }
-        a {
-            color: #2563eb;
-            text-decoration: none;
+
+        .note{
+            background:#fff7ed;
+            border-left:4px solid #fb923c;
+            padding:16px;
+            margin-top:16px;
         }
-        a:hover {
-            text-decoration: underline;
+
+        .warn{
+            background:#fee2e2;
+            border-left:4px solid #ef4444;
+            padding:16px;
+            margin-top:16px;
         }
+
+        .success{
+            background:#ecfeff;
+            border-left:4px solid #06b6d4;
+            padding:16px;
+            margin-top:16px;
+        }
+
+        footer{
+            background:#020617;
+            color:#94a3b8;
+            text-align:center;
+            padding:30px;
+            margin-top:80px;
+        }
+
+        a{
+            color:#2563eb;
+            text-decoration:none;
+        }
+
+        a:hover{
+            text-decoration:underline;
+        }
+
+        .diagram{
+            background:#111827;
+            color:#e5e7eb;
+            padding:16px;
+            border-radius:8px;
+            font-family:monospace;
+            margin-top:12px;
+        }
+
     </style>
 </head>
 
@@ -104,93 +157,192 @@
 
 <header>
     <h1>Quandosol Custom Label Printing API</h1>
-    <p>Design labels inside Quandosol · Print dynamically from your own website</p>
+    <p>Design labels inside Quandosol · Print dynamically from your own systems</p>
 </header>
 
 <div class="container">
 
     <h2>1. Introduction</h2>
+
     <p>
-        Quandosol is a SaaS platform for designing, managing, and printing labels.
-        This API allows customers to print labels <strong>outside of the Quandosol UI</strong>
-        using their own applications while still using Quandosol’s label designer.
+        Quandosol is a SaaS platform that allows businesses to design and manage label templates.
+        This API enables printing those labels from external systems such as:
     </p>
 
-    <h2>2. Eligibility & Access Control</h2>
     <ul>
-        <li>Advanced Plan subscription is required</li>
-        <li>API key and API token must be generated from the API Credential module</li>
-        <li>API token is visible only once</li>
-        <li>Regenerating a token invalidates the old one</li>
+        <li>ERP systems</li>
+        <li>Warehouse software</li>
+        <li>Web applications</li>
+        <li>Desktop applications</li>
+        <li>POS systems</li>
     </ul>
 
-    <h2>3. Core Concept – API Variables</h2>
     <p>
-        Customers define <strong>API variables</strong> inside the label design instead of binding labels
-        to items, CSVs, or API URLs.
+        Labels are designed once in Quandosol and can then be printed dynamically
+        using the API by sending variable values at runtime.
     </p>
 
-    <pre>{IMEI}
+    <hr>
+
+    <h2>2. Printing Methods Overview</h2>
+
+    <table>
+        <tr>
+            <th>Method</th>
+            <th>Description</th>
+            <th>Best Use Case</th>
+        </tr>
+
+        <tr>
+            <td>Browser SDK</td>
+            <td>Rendering inside browser using canvas</td>
+            <td>Web applications</td>
+        </tr>
+
+        <tr>
+            <td>PrintNode PDF</td>
+            <td>Server generates PDF and sends to printer</td>
+            <td>Standard printers</td>
+        </tr>
+
+        <tr>
+            <td>PrintNode ZPL</td>
+            <td>Native ZPL commands for Zebra printers</td>
+            <td>Warehouse / thermal printing</td>
+        </tr>
+
+    </table>
+
+    <hr>
+
+    <h2>3. Eligibility & Access Control</h2>
+
+    <ul>
+        <li>Advanced plan subscription required</li>
+        <li>API credentials must be generated</li>
+        <li>API tokens are visible only once</li>
+        <li>Regenerating token invalidates old token</li>
+    </ul>
+
+    <hr>
+
+    <h2>4. API Variables Concept</h2>
+
+    Inside the label designer you define placeholders.
+
+    Example:
+
+    <pre>
+{IMEI}
 {Model_No}
 {Serial_No}
-{GT_Battery_Ratio}</pre>
+{GT_Battery_Ratio}
+</pre>
 
-    <p>
-        Values for these variables are sent at print time via <code>apiData</code>.
-        Quandosol replaces them dynamically before printing.
-    </p>
+    These variables will be replaced dynamically during printing.
 
-    <h2>4. High-Level Printing Flow</h2>
-    <ol>
-        <li>Client sends print request</li>
-        <li>API validates credentials</li>
-        <li>Plan & limits are checked</li>
-        <li>Label is fetched by name</li>
-        <li>Variables are replaced</li>
-        <li>Print records are created</li>
-        <li>Final markup JSON is generated</li>
-        <li>SDK renders markup</li>
-        <li>Browser print dialog opens</li>
-    </ol>
+    Example request:
 
-    <h2>5. API Endpoint</h2>
-    <pre>POST https://app.quandosol.com/api/custom-labels/print</pre>
+    <pre>
+{
+ "IMEI":"356938035643809",
+ "Model_No":"iPhone 13",
+ "Serial_No":"SN-A12345"
+}
+</pre>
 
-    <h2>6. Authentication Headers</h2>
+    <hr>
+
+    <h2>5. High Level Printing Flow</h2>
+
+    <div class="diagram">
+        Client System
+        │
+        │ API Request
+        ▼
+        Quandosol API
+        │
+        │ Replace Variables
+        ▼
+        Label Markup JSON
+        │
+        ▼
+        Rendering Engine
+        │
+        ▼
+        Printer Output
+    </div>
+
+    <hr>
+
+    <h2>6. Authentication</h2>
+
+    Headers required:
+
     <table>
-        <tr><th>Header</th><th>Description</th></tr>
-        <tr><td>X-API-KEY</td><td>API Key</td></tr>
-        <tr><td>X-API-SECRET</td><td>API Token</td></tr>
+        <tr>
+            <th>Header</th>
+            <th>Description</th>
+        </tr>
+
+        <tr>
+            <td>X-API-KEY</td>
+            <td>Your API Key</td>
+        </tr>
+
+        <tr>
+            <td>X-API-SECRET</td>
+            <td>Your API Token</td>
+        </tr>
+
     </table>
 
-    <h2>7. Request Body Parameters</h2>
-    <table>
-        <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
-        <tr><td>label_name</td><td>string</td><td>Yes</td><td>Exact label name in Quandosol</td></tr>
-        <tr><td>amount</td><td>integer</td><td>Yes</td><td>Minimum 1</td></tr>
-        <tr><td>apiData</td><td>object</td><td>Yes</td><td>Dynamic label variables</td></tr>
-    </table>
+    <hr>
 
-    <h2>8. Example API Request</h2>
-    <pre>{
-  "label_name": "Label A",
-  "amount": 1,
-  "apiData": {
-    "IMEI": "356938035643809",
-    "Model_No": "iPhone 13",
-    "Serial_No": "SN-A12345",
-    "GT_Battery_Ratio": "92%"
-  }
-}</pre>
+    <h2>7. Browser Printing Endpoint</h2>
 
-    <h2>9. SDK Architecture</h2>
-    <p>The SDK works in two execution contexts:</p>
-    <ul>
-        <li>Main page – API request & iframe trigger</li>
-        <li>Print page – canvas rendering & printing</li>
-    </ul>
+    <pre>
+POST /api/custom-labels/print
+</pre>
 
-    <h2>10. Files Required (With Examples)</h2>
+    Example:
+
+    <pre>
+{
+ "label_name":"Label A",
+ "amount":1,
+ "apiData":{
+  "IMEI":"356938035643809",
+  "Model_No":"iPhone 13"
+ }
+}
+</pre>
+
+    <hr>
+
+    <h2>8. SDK Setup</h2>
+
+    Load SDK:
+
+    <pre>
+https://app.quandosol.com/qcim-label-sdk.js
+</pre>
+
+    Configure SDK:
+
+    <pre>
+QCIMLabelSDK.setConfig({
+ apiBaseUrl:"https://app.quandosol.com/api",
+ api_key:"YOUR_API_KEY",
+ api_token:"YOUR_API_TOKEN",
+ printPageUrl:"./print-label.html",
+ debug:true
+});
+</pre>
+
+    <hr>
+
+    <h2>9. Files Required (With Examples)</h2>
     <ul>
         <li>
             <strong>qcim-label-sdk.js</strong><br>
@@ -247,64 +399,314 @@
         </li>
     </ul>
 
-    <h2>11. SDK Configuration</h2>
-    <pre>QCIMLabelSDK.setConfig({
-  apiBaseUrl: "https://app.quandosol.com/api",
-  api_key: "YOUR_API_KEY",
-  api_token: "YOUR_API_TOKEN",
-  printPageUrl: "./print-label.html",
-  debug: true
-});</pre>
 
-    <h2>12. Print Trigger Example</h2>
-    <pre>QCIMLabelSDK.printLabel({
-  label_name: "Label A",
-  amount: 1,
-  apiData: {
-    IMEI: "356938035643809",
-    Model_No: "iPhone 13"
-  }
-});</pre>
+    <hr>
 
-    <h2>13. Barcode & Image Support</h2>
-    <p>
-        Supports QR Code, Code128, Code39, EAN, PDF417, DataMatrix and more.
-        Rendered using <code>bwip-js</code>.
-    </p>
 
-    <h2>14. Browser Requirements</h2>
+    <h2>10. Browser Printing Example</h2>
+
+    <pre>
+QCIMLabelSDK.printLabel({
+ label_name:"Label A",
+ amount:1,
+ apiData:{
+  IMEI:"356938035643809",
+  Model_No:"iPhone 13"
+ },
+ mode:"browser"
+});
+</pre>
+
+    Browser printing works by rendering the label to canvas
+    and triggering the browser print dialog.
+
+    <hr>
+
+    <h2>11. PrintNode Printing</h2>
+
+    PrintNode allows server-side printing without browser interaction.
+
+    Advantages:
+
     <ul>
-        <li>Chrome</li>
-        <li>Edge</li>
-        <li>Firefox</li>
+        <li>No browser required</li>
+        <li>Background printing</li>
+        <li>Supports automation</li>
+        <li>Works with network printers</li>
     </ul>
 
-    <div class="note">
-        Printing works only in browsers due to iframe + canvas rendering.
+    <hr>
+
+    <h2>12. PrintNode PDF Printing</h2>
+
+    Endpoint:
+
+    <pre>
+POST /api/custom-labels/print-node-pdf
+</pre>
+
+    Example request:
+
+    <pre>
+{
+ "label_name":"Label A",
+ "amount":1,
+ "printer_id":75236019,
+ "apiData":{
+  "IMEI":"356938035643809"
+ }
+}
+</pre>
+
+    Response:
+
+    <pre>
+{
+ "status":"sent_to_printer_png"
+}
+</pre>
+
+    <hr>
+
+    <h3>How PDF Rendering Works</h3>
+
+    <div class="diagram">
+        Label Markup JSON
+        │
+        ▼
+        TCPDF Renderer
+        │
+        ▼
+        Vector PDF
+        │
+        ▼
+        Base64 Encoding
+        │
+        ▼
+        PrintNode API
+        │
+        ▼
+        Printer
     </div>
 
-    <h2>15. CORS Policy</h2>
-    <pre>https://app.quandosol.com/api/custom-labels/print</pre>
+    Supported elements:
 
-    <h2>16. Security Warning</h2>
-    <div class="warn">
-        Never expose API credentials in public websites.
-        Use a backend proxy for production usage.
+    <table>
+        <tr>
+            <th>Element</th>
+            <th>Supported</th>
+        </tr>
+
+        <tr><td>Text</td><td>Yes</td></tr>
+        <tr><td>Images</td><td>Yes</td></tr>
+        <tr><td>Barcode</td><td>Yes</td></tr>
+        <tr><td>QR Code</td><td>Yes</td></tr>
+        <tr><td>Shapes</td><td>Yes</td></tr>
+        <tr><td>Lines</td><td>Yes</td></tr>
+    </table>
+
+    <hr>
+
+    <h2>13. PrintNode ZPL Printing</h2>
+
+    Endpoint:
+
+    <pre>
+POST /api/custom-labels/print-node
+</pre>
+
+    Example:
+
+    <pre>
+{
+ "label_name":"Label A",
+ "amount":1,
+ "printer_id":75208784,
+ "apiData":{
+  "IMEI":"356938035643809"
+ }
+}
+</pre>
+
+    Response:
+
+    <pre>
+{
+ "status":"sent_to_printer",
+ "printer_dpi":203
+}
+</pre>
+
+    <hr>
+
+    <h3>ZPL Printing Architecture</h3>
+
+    <div class="diagram">
+        Markup JSON
+        │
+        ▼
+        Render to PNG
+        │
+        ▼
+        PNG → ZPL (^GF)
+        │
+        ▼
+        ZPL Commands
+        │
+        ▼
+        Zebra Printer
     </div>
 
-    <h2>17. Live Demo</h2>
-    <pre>https://app.quandosol.com/test_label.html</pre>
+    <hr>
 
-    <h2>18. Troubleshooting</h2>
+    <h3>ZPL Command Structure</h3>
+
+    Example ZPL:
+
+    <pre>
+^XA
+^PW832
+^LL400
+^LH0,0
+^FO0,0
+^GFA,...
+^XZ
+</pre>
+
+    Explanation:
+
+    <table>
+        <tr>
+            <th>Command</th>
+            <th>Description</th>
+        </tr>
+
+        <tr><td>^PW</td><td>Print width</td></tr>
+        <tr><td>^LL</td><td>Label length</td></tr>
+        <tr><td>^FO</td><td>Field origin</td></tr>
+        <tr><td>^GF</td><td>Graphic field</td></tr>
+    </table>
+
+    <hr>
+
+    <h2>14. Choosing the Right Printing Method</h2>
+
+    <table>
+        <tr>
+            <th>Scenario</th>
+            <th>Recommended Method</th>
+        </tr>
+
+        <tr>
+            <td>Web Application</td>
+            <td>Browser SDK</td>
+        </tr>
+
+        <tr>
+            <td>Office Printer</td>
+            <td>PrintNode PDF</td>
+        </tr>
+
+        <tr>
+            <td>Zebra Printer</td>
+            <td>PrintNode ZPL</td>
+        </tr>
+
+        <tr>
+            <td>Warehouse Automation</td>
+            <td>PrintNode ZPL</td>
+        </tr>
+
+        <tr>
+            <td>Complex Graphics Labels</td>
+            <td>PrintNode PDF</td>
+        </tr>
+
+    </table>
+
+    <hr>
+
+    <h2>15. Printer Setup Guide</h2>
+
+    Steps:
+
+    1. Install PrintNode client
+
+    https://www.printnode.com/download
+
+    2. Connect printer
+
+    3. Retrieve printer ID
+
+    PrintNode dashboard → Printers
+
+    4. Use printer ID in API request
+
+    Example:
+
+    <pre>
+"printer_id":75236019
+</pre>
+
+    <hr>
+
+    <h2>16. Error Codes</h2>
+
+    <table>
+        <tr>
+            <th>Error</th>
+            <th>Description</th>
+        </tr>
+
+        <tr>
+            <td>401</td>
+            <td>Invalid API credentials</td>
+        </tr>
+
+        <tr>
+            <td>404</td>
+            <td>Label not found</td>
+        </tr>
+
+        <tr>
+            <td>422</td>
+            <td>Invalid request parameters</td>
+        </tr>
+
+        <tr>
+            <td>500</td>
+            <td>Server rendering error</td>
+        </tr>
+
+    </table>
+
+    <hr>
+
+    <h2>17. Troubleshooting</h2>
+
     <ul>
-        <li>Ensure label_name exists</li>
-        <li>Ensure apiData keys match variables</li>
-        <li>Disable popup blockers</li>
-        <li>Ensure external images are publicly accessible</li>
+        <li>Ensure label name exists</li>
+        <li>Check API variables match template</li>
+        <li>Verify printer_id is correct</li>
+        <li>Confirm printer is connected to PrintNode client</li>
     </ul>
+
+    <hr>
+
+    <h2>18. Best Practices</h2>
+
+    <ul>
+        <li>Do not expose API credentials in frontend</li>
+        <li>Use backend proxy for production</li>
+        <li>Cache label templates when possible</li>
+        <li>Validate API variables before sending</li>
+    </ul>
+
+    <hr>
 
     <div class="success">
-        This API enables fully dynamic, external label printing using Quandosol.
+        Quandosol enables flexible label printing from any system using
+        browser rendering or direct server-side printing.
     </div>
 
 </div>
@@ -312,6 +714,44 @@
 <footer>
     © 2026 Quandosol · Custom Label Printing API
 </footer>
+<script>
+  document.addEventListener("DOMContentLoaded", function(){
 
+    const blocks = document.querySelectorAll("pre");
+
+    blocks.forEach((block) => {
+
+      const container = document.createElement("div");
+      container.className = "code-container";
+
+      block.parentNode.insertBefore(container, block);
+      container.appendChild(block);
+
+      const button = document.createElement("button");
+      button.innerText = "Copy";
+      button.className = "copy-btn";
+
+      container.appendChild(button);
+
+      button.addEventListener("click", async () => {
+
+        const text = block.innerText;
+
+        await navigator.clipboard.writeText(text);
+
+        button.innerText = "Copied!";
+        button.classList.add("copied");
+
+        setTimeout(() => {
+          button.innerText = "Copy";
+          button.classList.remove("copied");
+        },2000);
+
+      });
+
+    });
+
+  });
+</script>
 </body>
 </html>
