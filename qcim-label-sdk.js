@@ -129,7 +129,7 @@
         return data;
     }
 
-    async function printNodeImagePrint({ label_name, amount, apiData, printer_id }) {
+    async function printNodePdfPrint({ label_name, amount, apiData, printer_id }) {
         const { apiBaseUrl, api_key,api_token, password } = QCIMLabelSDK.config;
 
         if (!apiBaseUrl) throw new Error("apiBaseUrl is missing in config.");
@@ -137,7 +137,7 @@
         if (!label_name) throw new Error("label_name is required.");
         if (!amount || amount < 1) throw new Error("amount must be at least 1.");
 
-        const url = `${apiBaseUrl}/custom-labels/print-node-png`;
+        const url = `${apiBaseUrl}/custom-labels/print-node-pdf`;
 
         log("Calling Print node Image API:", url);
 
@@ -184,7 +184,7 @@
                 alert("Sent to printer successfully");
             } else if (mode === "printNodeImage") {
                 console.log("inside print node ");
-                const response = await printNodeImagePrint({ label_name, amount, apiData, printer_id });
+                const response = await printNodePdfPrint({ label_name, amount, apiData, printer_id });
                 console.log("response =======",response);
 
                 alert("Sent to printer successfully");
