@@ -228,6 +228,7 @@
 
 <script>
     // CUSTOMER CONFIGURATION
+    // local
     QCIMLabelSDK.setConfig({
         apiBaseUrl: "http://qcim-backend.test/api",
         api_key: "yqjHWY8M1MBUdF82cq2EoH4lsuBg8Xwa",
@@ -236,6 +237,16 @@
         debug: true,
         mode: "browser",
     });
+
+    // production
+    // QCIMLabelSDK.setConfig({
+    //   apiBaseUrl: "https://api.beta.quandosol.com/api",
+    //   api_key: "splsTpbkLDzYREpXxpTLGA20V7szpyda",
+    //   api_token: "t06utpbYol5mVgnbYp89Ym5qId4IuFKFrK6KDfkCZm9Mn0N0v5zqvdcPDJOs2yY8",
+    //   printPageUrl: "./print-label.html",
+    //   debug: true,
+    //   mode: "browser", // or "printnode"
+    // });
 
     function printLabel(button) {
         const row = button.closest("tr");
@@ -254,12 +265,12 @@
             Reg_Model_Number: cells[9].innerText.trim(),
         };
 
-        QCIMLabelSDK.printLabel({
-            label_name: apiData.label_name,
-            amount: 1,
-            apiData: apiData,
-            mode: "browser",
-        });
+      QCIMLabelSDK.printLabel({
+        label_name: apiData.label_name,
+        amount: 1,
+        apiData: apiData,
+        mode: "browser",
+      });
     }
 
     function printNodeLabel(button) {
@@ -284,7 +295,10 @@
         amount: 1,
         apiData: apiData,
         mode: "printNodeZpl",
-        printer_id: 75236019 // change to real printer id
+        //local
+        printer_id: 75236019 // ZDesigner ZD500R-203dpi ZPL – 75208784, printer id  Brother HL-5470DW series – 75208780, 75236019 divakar's accuount key, vinc's zpl printer 75208784
+        //production
+        // printer_id: 75208784 // ZDesigner ZD500R-203dpi ZPL – 75208784, printer id  Brother HL-5470DW series – 75208780, 75236019 divakar's accuount key, vinc's zpl printer 75208784
       });
     }
 
@@ -310,7 +324,10 @@
         amount: 1,
         apiData: apiData,
         mode: "printNodeImage",
-        printer_id: 75236019 // change to real printer id
+        //local
+        printer_id: 75236019 // ZDesigner ZD500R-203dpi ZPL – 75208784, printer id  Brother HL-5470DW series – 75208780, 75236019 divakar's accuount key, vinc's zpl printer 75208784
+        //production
+        // printer_id: 75208784 // ZDesigner ZD500R-203dpi ZPL – 75208784, printer id  Brother HL-5470DW series – 75208780, 75236019 divakar's accuount key, vinc's zpl printer 75208784
       });
     }
 </script>
