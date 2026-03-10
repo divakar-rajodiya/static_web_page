@@ -362,11 +362,34 @@
                 ctx.textBaseline = "top";
                 ctx.textAlign = align;
 
-                const lines = (el.text || "").split("\n");
                 const lineHeight = fontSize * 1.2;
+                const maxWidth = el.width || null;
 
-                lines.forEach((line, i) => {
-                    ctx.fillText(line.trim(), 0, i * lineHeight);
+                // Split on explicit newlines first, then word-wrap each segment
+                const rawLines = (el.text || "").split("\n");
+                const wrappedLines = [];
+
+                for (const rawLine of rawLines) {
+                    if (!maxWidth) {
+                        wrappedLines.push(rawLine.trim());
+                        continue;
+                    }
+                    const words = rawLine.trim().split(" ");
+                    let current = "";
+                    for (const word of words) {
+                        const test = current ? current + " " + word : word;
+                        if (ctx.measureText(test).width > maxWidth && current !== "") {
+                            wrappedLines.push(current);
+                            current = word;
+                        } else {
+                            current = test;
+                        }
+                    }
+                    if (current) wrappedLines.push(current);
+                }
+
+                wrappedLines.forEach((line, i) => {
+                    ctx.fillText(line, 0, i * lineHeight);
                 });
 
                 ctx.restore();
