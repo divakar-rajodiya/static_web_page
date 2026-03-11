@@ -500,10 +500,10 @@
         <a href="#setup"         class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>SDK & Files Setup</a>
 
         <span class="nav-section">Print Methods</span>
-        <a href="#method1" class="nav-link" data-m="1"><span class="nav-dot" style="background:var(--m1)"></span>1 · Fetch Markups</a>
-        <a href="#method2" class="nav-link" data-m="2"><span class="nav-dot" style="background:var(--m2)"></span>2 · Print Markups</a>
-        <a href="#method3" class="nav-link" data-m="3"><span class="nav-dot" style="background:var(--m3)"></span>3 · PrintNode ZPL</a>
-        <a href="#method4" class="nav-link" data-m="4"><span class="nav-dot" style="background:var(--m4)"></span>4 · PrintNode PDF</a>
+        <a href="#method1" class="nav-link" data-m="1"><span class="nav-dot" style="background:var(--m1)"></span>1 : Fetch Markups</a>
+        <a href="#method2" class="nav-link" data-m="2"><span class="nav-dot" style="background:var(--m2)"></span>2 : Print Markups</a>
+        <a href="#method3" class="nav-link" data-m="3"><span class="nav-dot" style="background:var(--m3)"></span>3 : PrintNode ZPL</a>
+        <a href="#method4" class="nav-link" data-m="4"><span class="nav-dot" style="background:var(--m4)"></span>4 : PrintNode PDF</a>
 
         <span class="nav-section">Reference</span>
         <a href="#choosing"       class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Choosing a Method</a>
@@ -520,7 +520,7 @@
         <div class="hero">
             <div class="hero-badge">API Documentation</div>
             <h1>Quandosol Custom Label Printing API</h1>
-            <p>Design labels once inside Quandosol. Print them dynamically from any system — browser, ERP, warehouse software, or POS.</p>
+            <p>Design labels once inside Quandosol. Print them dynamically from any system - browser, ERP, warehouse software, or POS.</p>
 
             <div class="method-cards-row">
                 <a href="#method1" class="method-hero-card"><span class="dot" style="background:var(--m1)"></span>Fetch Markups</a>
@@ -537,7 +537,7 @@
             ══════════════════════════════════════════════ -->
             <section id="intro">
                 <h2>Introduction</h2>
-                <p>Quandosol is a SaaS platform that allows businesses to design and manage label templates. This API enables printing those labels from any external system — variable data is sent at runtime, and Quandosol handles the rendering and delivery.</p>
+                <p>Quandosol is a SaaS platform that allows businesses to design and manage label templates. This API enables printing those labels from any external system - variable data is sent at runtime, and Quandosol handles the rendering and delivery.</p>
 
                 <div class="two-col">
                     <div class="col-block">
@@ -584,7 +584,7 @@
                         <tr>
                             <td><span style="color:var(--m1);font-weight:700">1</span></td>
                             <td><strong style="color:var(--m1)">Fetch Markups</strong></td>
-                            <td>Returns raw markup JSON — no printing triggered</td>
+                            <td>Returns raw markup JSON - no printing triggered</td>
                             <td>Preview, debugging, custom rendering</td>
                             <td>No</td>
                         </tr>
@@ -600,14 +600,14 @@
                             <td><strong style="color:var(--m3)">PrintNode ZPL</strong></td>
                             <td>Generates ZPL commands and sends directly to Zebra printer via PrintNode</td>
                             <td>Warehouse / thermal printing</td>
-                            <td>Yes — Zebra/ZPL</td>
+                            <td>Yes - Zebra/ZPL</td>
                         </tr>
                         <tr>
                             <td><span style="color:var(--m4);font-weight:700">4</span></td>
                             <td><strong style="color:var(--m4)">PrintNode PDF</strong></td>
                             <td>Renders a vector PDF server-side and sends to printer via PrintNode</td>
                             <td>Office / standard printers</td>
-                            <td>Yes — any printer</td>
+                            <td>Yes - any printer</td>
                         </tr>
                         </tbody>
                     </table>
@@ -627,7 +627,7 @@
                 <ul>
                     <li>An <strong>Advanced plan</strong> subscription is required to access the API</li>
                     <li>API credentials must be generated from your Quandosol dashboard</li>
-                    <li>API tokens are <strong>visible only once</strong> at generation time — store them securely</li>
+                    <li>API tokens are <strong>visible only once</strong> at generation time - store them securely</li>
                     <li>Regenerating a token immediately invalidates the previous one</li>
                 </ul>
             </section>
@@ -741,8 +741,8 @@
 
                 <h3>Example Files</h3>
                 <ul>
-                    <li><strong>qcim-label-sdk.js</strong> — <a href="https://app.quandosol.com/qcim-label-sdk.js" target="_blank">https://app.quandosol.com/qcim-label-sdk.js</a></li>
-                    <li><strong>test_label.html</strong> — <a href="https://app.quandosol.com/test_label.html" target="_blank">https://app.quandosol.com/test_label.html</a></li>
+                    <li><strong>qcim-label-sdk.js</strong> - <a href="https://app.quandosol.com/qcim-label-sdk.js" target="_blank">https://app.quandosol.com/qcim-label-sdk.js</a></li>
+                    <li><strong>test_label.html</strong> - <a href="https://app.quandosol.com/test_label.html" target="_blank">https://app.quandosol.com/test_label.html</a></li>
                 </ul>
             </section>
 
@@ -756,20 +756,20 @@
             </section>
 
             <!-- ══════════════════════════════════════════════
-                 METHOD 1 — FETCH MARKUPS
+                 METHOD 1 - FETCH MARKUPS
             ══════════════════════════════════════════════ -->
             <div class="method-section" id="method1" style="border-color: rgba(167,139,250,.35);">
                 <div class="method-header" style="background: rgba(167,139,250,.07);">
                     <div class="method-number" style="background:rgba(167,139,250,.15);color:var(--m1);">1</div>
                     <div class="method-header-text">
                         <h3 style="color:var(--m1);">Fetch Markups</h3>
-                        <p>Retrieve raw label markup JSON — no printing triggered</p>
+                        <p>Retrieve raw label markup JSON - no printing triggered</p>
                     </div>
                     <span class="method-badge" style="color:var(--m1);border-color:rgba(167,139,250,.35);background:rgba(167,139,250,.1);">Preview / Debug</span>
                 </div>
 
                 <div class="method-body">
-                    <p>This method calls the API and returns the fully resolved label markup as JSON — with all variables replaced. No rendering or printing is triggered. Use this to <strong>preview label data</strong>, build custom renderers, or inspect what the label contains before committing to print.</p>
+                    <p>This method calls the API and returns the fully resolved label markup as JSON - with all variables replaced. No rendering or printing is triggered. Use this to <strong>preview label data</strong>, build custom renderers, or inspect what the label contains before committing to print.</p>
 
                     <p>When called via the SDK, the response is displayed in a <strong>built-in preview popup</strong> showing stage dimensions, element list, and a raw JSON view.</p>
 
@@ -854,7 +854,7 @@
             </div>
 
             <!-- ══════════════════════════════════════════════
-                 METHOD 2 — PRINT MARKUPS (Browser)
+                 METHOD 2 - PRINT MARKUPS (Browser)
             ══════════════════════════════════════════════ -->
             <div class="method-section" id="method2" style="border-color: rgba(52,211,153,.3); margin-top: 28px;">
                 <div class="method-header" style="background: rgba(52,211,153,.06);">
@@ -948,7 +948,7 @@
             </div>
 
             <!-- ══════════════════════════════════════════════
-                 METHOD 3 — PRINTNODE ZPL
+                 METHOD 3 - PRINTNODE ZPL
             ══════════════════════════════════════════════ -->
             <div class="method-section" id="method3" style="border-color: rgba(251,146,60,.3); margin-top: 28px;">
                 <div class="method-header" style="background: rgba(251,146,60,.06);">
@@ -961,12 +961,12 @@
                 </div>
 
                 <div class="method-body">
-                    <p>This method renders the label server-side into a PNG, converts it to ZPL commands (<code>^GF</code> graphic field), and sends it directly to a <strong>Zebra or ZPL-compatible thermal printer</strong> via the PrintNode API — no browser required.</p>
+                    <p>This method renders the label server-side into a PNG, converts it to ZPL commands (<code>^GF</code> graphic field), and sends it directly to a <strong>Zebra or ZPL-compatible thermal printer</strong> via the PrintNode API - no browser required.</p>
 
                     <h3>Prerequisites</h3>
                     <ul>
                         <li>PrintNode client installed and running on the machine connected to the printer</li>
-                        <li>Printer registered in PrintNode dashboard — retrieve the <code>printer_id</code></li>
+                        <li>Printer registered in PrintNode dashboard - retrieve the <code>printer_id</code></li>
                         <li>SDK loaded and configured</li>
                     </ul>
 
@@ -1052,7 +1052,7 @@
                             <tr><td><code>^PW</code></td><td>Print width in dots</td></tr>
                             <tr><td><code>^LL</code></td><td>Label length in dots</td></tr>
                             <tr><td><code>^FO</code></td><td>Field origin (x, y position)</td></tr>
-                            <tr><td><code>^GF</code></td><td>Graphic field — carries the PNG image data</td></tr>
+                            <tr><td><code>^GF</code></td><td>Graphic field - carries the PNG image data</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1065,7 +1065,7 @@
             </div>
 
             <!-- ══════════════════════════════════════════════
-                 METHOD 4 — PRINTNODE PDF
+                 METHOD 4 - PRINTNODE PDF
             ══════════════════════════════════════════════ -->
             <div class="method-section" id="method4" style="border-color: rgba(96,165,250,.3); margin-top: 28px;">
                 <div class="method-header" style="background: rgba(96,165,250,.06);">
@@ -1083,7 +1083,7 @@
                     <h3>Prerequisites</h3>
                     <ul>
                         <li>PrintNode client installed and running on the machine connected to the printer</li>
-                        <li>Printer registered in PrintNode dashboard — retrieve the <code>printer_id</code></li>
+                        <li>Printer registered in PrintNode dashboard - retrieve the <code>printer_id</code></li>
                         <li>SDK loaded and configured</li>
                     </ul>
 
@@ -1232,7 +1232,7 @@
                         <tr><td><code>401</code></td><td>Unauthorized</td><td>Invalid or missing API credentials</td></tr>
                         <tr><td><code>404</code></td><td>Not Found</td><td>Label name does not exist in your account</td></tr>
                         <tr><td><code>422</code></td><td>Unprocessable Entity</td><td>Missing or invalid request parameters</td></tr>
-                        <tr><td><code>500</code></td><td>Server Error</td><td>Rendering failure — contact support</td></tr>
+                        <tr><td><code>500</code></td><td>Server Error</td><td>Rendering failure - contact support</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1263,12 +1263,12 @@
                     <li>Use <strong>Method 1 (Fetch Markups)</strong> during development to validate your variable data before wiring up any print method.</li>
                     <li>Cache label template metadata where possible to reduce repeated API calls.</li>
                     <li>Validate all <code>apiData</code> values on the client side before sending the request.</li>
-                    <li>Store your API token securely immediately after generation — it is shown only once.</li>
+                    <li>Store your API token securely immediately after generation - it is shown only once.</li>
                 </ul>
 
                 <div class="callout success" style="margin-top:28px;">
                     <span class="callout-icon">✅</span>
-                    <p>Quandosol enables flexible label printing from any system — use <strong>Fetch Markups</strong> to preview, <strong>Print Markups</strong> for browser printing, and <strong>PrintNode ZPL/PDF</strong> for direct server-side delivery to any printer.</p>
+                    <p>Quandosol enables flexible label printing from any system - use <strong>Fetch Markups</strong> to preview, <strong>Print Markups</strong> for browser printing, and <strong>PrintNode ZPL/PDF</strong> for direct server-side delivery to any printer.</p>
                 </div>
             </section>
 
