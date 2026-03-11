@@ -363,29 +363,53 @@
                 ctx.textAlign = align;
 
                 const lineHeight = fontSize * 1.2;
-                const maxWidth = el.width || null;
 
-                // Split on explicit newlines first, then word-wrap each segment
-                const rawLines = (el.text || "").split("\n");
-                const wrappedLines = [];
+                // Fallback maxWidth = distance from el.x to label right edge
+                const labelLogicalWidth = inchWidth * DPI;
+                const elX = el.x || 0;
+                const maxWidth = (el.width && el.width > 0)
+                  ? el.width
+                  : (labelLogicalWidth - elX);
 
-                for (const rawLine of rawLines) {
-                    if (!maxWidth) {
-                        wrappedLines.push(rawLine.trim());
-                        continue;
-                    }
-                    const words = rawLine.trim().split(" ");
-                    let current = "";
+                function wrapText(str, maxW) {
+                    if (!maxW || maxW <= 0) return [str.trim()];
+                    const result = [];
+                    const words = str.trim().split(' ');
+                    let current = '';
                     for (const word of words) {
-                        const test = current ? current + " " + word : word;
-                        if (ctx.measureText(test).width > maxWidth && current !== "") {
-                            wrappedLines.push(current);
+                        // Single word too wide — break by character
+                        if (ctx.measureText(word).width > maxW) {
+                            if (current) { result.push(current); current = ''; }
+                            let charBuf = '';
+                            for (const ch of word) {
+                                const test = charBuf + ch;
+                                if (ctx.measureText(test).width > maxW && charBuf !== '') {
+                                    result.push(charBuf);
+                                    charBuf = ch;
+                                } else {
+                                    charBuf = test;
+                                }
+                            }
+                            if (charBuf) current = charBuf;
+                            continue;
+                        }
+                        const test = current ? current + ' ' + word : word;
+                        if (ctx.measureText(test).width > maxW && current !== '') {
+                            result.push(current);
                             current = word;
                         } else {
                             current = test;
                         }
                     }
-                    if (current) wrappedLines.push(current);
+                    if (current) result.push(current);
+                    return result;
+                }
+
+                // Respect explicit \n breaks, then word/char-wrap each segment
+                const rawLines = (el.text || '').split('\n');
+                const wrappedLines = [];
+                for (const raw of rawLines) {
+                    wrapText(raw, maxWidth).forEach(l => wrappedLines.push(l));
                 }
 
                 wrappedLines.forEach((line, i) => {
