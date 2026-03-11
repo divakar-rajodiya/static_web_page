@@ -53,7 +53,7 @@
         return iframe;
     }
 
-    async function fetchMarkup({ label_name, amount, apiData }) {
+    async function fetchAndPrintMarkups({ label_name, amount, apiData }) {
         const { apiBaseUrl, api_key,api_token, password } = QCIMLabelSDK.config;
 
         if (!apiBaseUrl) throw new Error("apiBaseUrl is missing in config.");
@@ -90,6 +90,45 @@
 
         return data;
     }
+
+    async function fetchMarkup({ label_name, amount, apiData }) {
+        const { apiBaseUrl, api_key,api_token, password } = QCIMLabelSDK.config;
+
+        if (!apiBaseUrl) throw new Error("apiBaseUrl is missing in config.");
+        if (!api_key || !api_token) throw new Error("api key/api token missing in config.");
+        if (!label_name) throw new Error("label_name is required.");
+        if (!amount || amount < 1) throw new Error("amount must be at least 1.");
+
+        const url = `${apiBaseUrl}/custom-labels/fetch-markups`;
+
+        log("Calling API:", url);
+
+        const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json",
+                "X-API-KEY": api_key,
+                "X-API-SECRET": api_token
+            },
+            body: JSON.stringify({
+                label_name,
+                amount,
+                apiData,
+            }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data?.message || data?.error || "Failed to print label");
+        }
+
+        if (!Array.isArray(data) || data.length === 0) {
+            throw new Error("No markup returned from server.");
+        }
+
+        return data;
+    }
+
 
     async function printNodeZplPrint({ label_name, amount, apiData, printer_id }) {
         const { apiBaseUrl, api_key,api_token, password } = QCIMLabelSDK.config;
@@ -172,7 +211,7 @@
                                                   label_name,
                                                   amount = 1,
                                                   apiData = {},
-                                                  mode = "browser",
+                                                  mode = "fetch_markups",
                                                   printer_id = null
                                               }) {
         try {
@@ -188,8 +227,8 @@
                 console.log("response =======",response);
 
                 alert("Sent to printer successfully");
-            } else {
-                const markups = await fetchMarkup({ label_name, amount, apiData });
+            } else if (mode === "print_markups") {
+                const markups = await fetchAndPrintMarkups({ label_name, amount, apiData });
                 const markup = markups[0];
 
                 const iframe = getPrintIframe();
@@ -204,6 +243,9 @@
                 };
 
                 iframe.src = QCIMLabelSDK.config.printPageUrl + "?" + Date.now();
+            } else {
+                const markups = await fetchMarkup({ label_name, amount, apiData });
+                console.log("markups === ",markups);
             }
         } catch (err) {
             console.error("[QCIM LABEL SDK ERROR]", err);
