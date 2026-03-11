@@ -2,756 +2,1317 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Quandosol Custom Label Printing API – Full Documentation</title>
+    <title>Quandosol Custom Label Printing API – Documentation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        .code-container{
-            position:relative;
+        :root {
+            --bg:        #0b0f1a;
+            --surface:   #111827;
+            --surface2:  #1a2236;
+            --border:    #1f2d45;
+            --text:      #e2e8f0;
+            --muted:     #64748b;
+            --accent:    #38bdf8;
+
+            /* Method palette */
+            --m1: #a78bfa;   /* Fetch Markups  – violet */
+            --m2: #34d399;   /* Print Markups  – emerald */
+            --m3: #fb923c;   /* PrintNode ZPL  – orange */
+            --m4: #60a5fa;   /* PrintNode PDF  – blue */
+
+            --radius: 10px;
+            --mono: 'IBM Plex Mono', monospace;
+            --sans: 'Sora', sans-serif;
         }
 
-        .copy-btn{
-            position:absolute;
-            top:10px;
-            right:10px;
-            background:#2563eb;
-            color:white;
-            border:none;
-            padding:6px 10px;
-            font-size:12px;
-            border-radius:6px;
-            cursor:pointer;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            font-size: 15px;
         }
 
-        .copy-btn:hover{
-            background:#1d4ed8;
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+        /* ── LAYOUT ── */
+        .layout { display: flex; min-height: 100vh; }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: 260px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 28px 0 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
         }
 
-        .copy-btn.copied{
-            background:#16a34a;
+        .sidebar-logo {
+            padding: 0 22px 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
         }
 
-        body{
-            font-family:Inter,Arial,sans-serif;
-            background:#f8fafc;
-            color:#0f172a;
-            margin:0;
+        .sidebar-logo h2 {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: .12em;
+            text-transform: uppercase;
         }
 
-        header{
-            background:#020617;
-            color:#fff;
-            padding:40px;
+        .sidebar-logo p {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 3px;
         }
 
-        header h1{
-            margin:0;
-            font-size:30px;
+        .nav-section {
+            padding: 6px 22px 4px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-top: 10px;
         }
 
-        header p{
-            margin-top:10px;
-            color:#cbd5f5;
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 7px 22px;
+            font-size: 13px;
+            color: #94a3b8;
+            text-decoration: none;
+            border-left: 2px solid transparent;
+            transition: all .15s;
         }
 
-        .container{
-            max-width:1200px;
-            margin:auto;
-            padding:40px;
+        .nav-link:hover { color: var(--text); background: var(--surface2); }
+
+        .nav-link.active { color: var(--text); border-left-color: var(--accent); background: rgba(56,189,248,.07); }
+
+        .nav-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
         }
 
-        h2{
-            margin-top:48px;
-            border-bottom:2px solid #e5e7eb;
-            padding-bottom:8px;
+        /* ── MAIN CONTENT ── */
+        main {
+            flex: 1;
+            min-width: 0;
+            padding: 0 0 100px;
         }
 
-        h3{
-            margin-top:28px;
+        /* ── HERO ── */
+        .hero {
+            background: linear-gradient(135deg, #0b0f1a 0%, #0f1e38 60%, #0b1a2e 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 60px 60px 48px;
+            position: relative;
+            overflow: hidden;
         }
 
-        p,li{
-            line-height:1.7;
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -80px; right: -80px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(56,189,248,.12) 0%, transparent 70%);
+            pointer-events: none;
         }
 
-        code{
-            background:#e5e7eb;
-            padding:3px 6px;
-            border-radius:4px;
+        .hero-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            background: rgba(56,189,248,.12);
+            color: var(--accent);
+            border: 1px solid rgba(56,189,248,.25);
+            border-radius: 20px;
+            padding: 4px 12px;
+            margin-bottom: 18px;
         }
 
-        pre{
-            background:#020617;
-            color:#e5e7eb;
-            padding:18px;
-            border-radius:8px;
-            overflow-x:auto;
+        .hero h1 {
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1.15;
+            color: #fff;
+            max-width: 640px;
         }
 
-        table{
-            width:100%;
-            border-collapse:collapse;
-            margin-top:16px;
+        .hero p {
+            color: #94a3b8;
+            margin-top: 14px;
+            max-width: 580px;
+            font-size: 15px;
         }
 
-        th,td{
-            border:1px solid #e5e7eb;
-            padding:10px;
+        /* ── Method cards row in hero ── */
+        .method-cards-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            flex-wrap: wrap;
         }
 
-        th{
-            background:#f1f5f9;
+        .method-hero-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            text-decoration: none;
+            transition: border-color .2s, transform .15s;
         }
 
-        .note{
-            background:#fff7ed;
-            border-left:4px solid #fb923c;
-            padding:16px;
-            margin-top:16px;
+        .method-hero-card:hover { transform: translateY(-2px); }
+
+        .method-hero-card .dot {
+            width: 9px; height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
         }
 
-        .warn{
-            background:#fee2e2;
-            border-left:4px solid #ef4444;
-            padding:16px;
-            margin-top:16px;
+        /* ── CONTENT SECTIONS ── */
+        .content { padding: 0 60px; }
+
+        section { padding-top: 56px; }
+
+        section h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
         }
 
-        .success{
-            background:#ecfeff;
-            border-left:4px solid #06b6d4;
-            padding:16px;
-            margin-top:16px;
+        section h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #e2e8f0;
+            margin: 28px 0 12px;
         }
 
-        footer{
-            background:#020617;
-            color:#94a3b8;
-            text-align:center;
-            padding:30px;
-            margin-top:80px;
+        section h4 {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin: 20px 0 8px;
         }
 
-        a{
-            color:#2563eb;
-            text-decoration:none;
+        p { color: #94a3b8; margin-bottom: 12px; }
+
+        ul, ol { color: #94a3b8; padding-left: 20px; }
+        ul li, ol li { margin-bottom: 6px; }
+
+        /* ── CALLOUTS ── */
+        .callout {
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin: 18px 0;
+            font-size: 14px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
         }
 
-        a:hover{
-            text-decoration:underline;
+        .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+        .callout.note   { background: rgba(251,191,36,.06);  border: 1px solid rgba(251,191,36,.2);  color: #fcd34d; }
+        .callout.warn   { background: rgba(239,68,68,.06);   border: 1px solid rgba(239,68,68,.2);   color: #fca5a5; }
+        .callout.tip    { background: rgba(56,189,248,.06);  border: 1px solid rgba(56,189,248,.2);  color: #7dd3fc; }
+        .callout.success{ background: rgba(52,211,153,.06);  border: 1px solid rgba(52,211,153,.2);  color: #6ee7b7; }
+
+        .callout p { color: inherit; margin: 0; }
+
+        /* ── CODE BLOCKS ── */
+        .code-wrap { position: relative; margin: 14px 0; }
+
+        pre {
+            background: #060d18;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            overflow-x: auto;
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.65;
+            color: #c9d8ee;
         }
 
-        .diagram{
-            background:#111827;
-            color:#e5e7eb;
-            padding:16px;
-            border-radius:8px;
-            font-family:monospace;
-            margin-top:12px;
+        code {
+            font-family: var(--mono);
+            font-size: 12.5px;
+            background: rgba(56,189,248,.1);
+            color: var(--accent);
+            border-radius: 4px;
+            padding: 2px 6px;
         }
 
+        pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px; right: 10px;
+            background: var(--surface2);
+            color: #94a3b8;
+            border: 1px solid var(--border);
+            padding: 5px 10px;
+            font-size: 11px;
+            font-family: var(--sans);
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all .15s;
+        }
+
+        .copy-btn:hover { background: var(--border); color: var(--text); }
+        .copy-btn.copied { background: rgba(52,211,153,.15); color: #34d399; border-color: rgba(52,211,153,.3); }
+
+        /* ── TABLES ── */
+        .table-wrap { overflow-x: auto; margin: 14px 0; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 10px 14px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--surface2);
+            color: #cbd5e1;
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: .04em;
+        }
+
+        td { color: #94a3b8; }
+
+        tr:hover td { background: rgba(255,255,255,.02); }
+
+        /* ── METHOD SECTION CARD ── */
+        .method-section {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            margin-top: 40px;
+        }
+
+        .method-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 22px 28px;
+        }
+
+        .method-number {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .method-header-text h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 0 2px;
+        }
+
+        .method-header-text p {
+            font-size: 13px;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .method-badge {
+            margin-left: auto;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            border-radius: 20px;
+            padding: 4px 12px;
+            border: 1px solid;
+            flex-shrink: 0;
+        }
+
+        .method-body {
+            border-top: 1px solid var(--border);
+            padding: 28px 28px 32px;
+        }
+
+        /* ── FLOW DIAGRAM ── */
+        .flow {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0;
+            margin: 16px 0;
+        }
+
+        .flow-step {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 9px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #e2e8f0;
+            white-space: nowrap;
+        }
+
+        .flow-arrow {
+            color: var(--muted);
+            padding: 0 8px;
+            font-size: 16px;
+        }
+
+        /* ── STEP LIST ── */
+        .steps { list-style: none; padding: 0; margin: 14px 0; counter-reset: step; }
+
+        .steps li {
+            counter-increment: step;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            margin-bottom: 14px;
+            color: #94a3b8;
+        }
+
+        .steps li::before {
+            content: counter(step);
+            min-width: 26px; height: 26px;
+            border-radius: 6px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: var(--mono);
+            flex-shrink: 0;
+        }
+
+        /* ── TWO COL ── */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 14px 0; }
+
+        @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+        .col-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+        }
+
+        .col-block h4 { color: #cbd5e1; margin-top: 0; margin-bottom: 10px; text-transform: none; font-size: 13px; letter-spacing: 0; }
+        .col-block ul { color: #94a3b8; padding-left: 16px; margin: 0; }
+        .col-block p  { margin: 0; }
+
+        /* ── DIVIDER ── */
+        .divider { border: none; border-top: 1px solid var(--border); margin: 48px 0 0; }
+
+        /* ── FOOTER ── */
+        footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            text-align: center;
+            padding: 30px;
+            font-size: 13px;
+            margin-top: 80px;
+        }
+
+        /* ── SCROLLSPY ACTIVE ── */
+        .nav-link[data-m="1"].active { border-left-color: var(--m1); color: var(--m1); background: rgba(167,139,250,.07); }
+        .nav-link[data-m="2"].active { border-left-color: var(--m2); color: var(--m2); background: rgba(52,211,153,.07); }
+        .nav-link[data-m="3"].active { border-left-color: var(--m3); color: var(--m3); background: rgba(251,146,60,.07); }
+        .nav-link[data-m="4"].active { border-left-color: var(--m4); color: var(--m4); background: rgba(96,165,250,.07); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 1024px) {
+            .sidebar { display: none; }
+            .hero, .content { padding-left: 28px; padding-right: 28px; }
+        }
     </style>
 </head>
-
 <body>
 
-<header>
-    <h1>Quandosol Custom Label Printing API</h1>
-    <p>Design labels inside Quandosol · Print dynamically from your own systems</p>
-</header>
+<div class="layout">
 
-<div class="container">
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <h2>Quandosol</h2>
+            <p>Label Printing API Docs</p>
+        </div>
 
-    <h2>1. Introduction</h2>
+        <span class="nav-section">Overview</span>
+        <a href="#intro"         class="nav-link active"><span class="nav-dot" style="background:#38bdf8"></span>Introduction</a>
+        <a href="#overview"      class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Methods Overview</a>
+        <a href="#eligibility"   class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Eligibility & Access</a>
+        <a href="#variables"     class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>API Variables</a>
+        <a href="#auth"          class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Authentication</a>
+        <a href="#setup"         class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>SDK & Files Setup</a>
 
-    <p>
-        Quandosol is a SaaS platform that allows businesses to design and manage label templates.
-        This API enables printing those labels from external systems such as:
-    </p>
+        <span class="nav-section">Print Methods</span>
+        <a href="#method1" class="nav-link" data-m="1"><span class="nav-dot" style="background:var(--m1)"></span>1 · Fetch Markups</a>
+        <a href="#method2" class="nav-link" data-m="2"><span class="nav-dot" style="background:var(--m2)"></span>2 · Print Markups</a>
+        <a href="#method3" class="nav-link" data-m="3"><span class="nav-dot" style="background:var(--m3)"></span>3 · PrintNode ZPL</a>
+        <a href="#method4" class="nav-link" data-m="4"><span class="nav-dot" style="background:var(--m4)"></span>4 · PrintNode PDF</a>
 
-    <ul>
-        <li>ERP systems</li>
-        <li>Warehouse software</li>
-        <li>Web applications</li>
-        <li>Desktop applications</li>
-        <li>POS systems</li>
-    </ul>
+        <span class="nav-section">Reference</span>
+        <a href="#choosing"       class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Choosing a Method</a>
+        <a href="#printer-setup"  class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Printer Setup</a>
+        <a href="#errors"         class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Error Codes</a>
+        <a href="#troubleshooting"class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Troubleshooting</a>
+        <a href="#best-practices" class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Best Practices</a>
+    </aside>
 
-    <p>
-        Labels are designed once in Quandosol and can then be printed dynamically
-        using the API by sending variable values at runtime.
-    </p>
+    <!-- ── MAIN ── -->
+    <main id="main">
 
-    <hr>
+        <!-- HERO -->
+        <div class="hero">
+            <div class="hero-badge">API Documentation</div>
+            <h1>Quandosol Custom Label Printing API</h1>
+            <p>Design labels once inside Quandosol. Print them dynamically from any system — browser, ERP, warehouse software, or POS.</p>
 
-    <h2>2. Printing Methods Overview</h2>
+            <div class="method-cards-row">
+                <a href="#method1" class="method-hero-card"><span class="dot" style="background:var(--m1)"></span>Fetch Markups</a>
+                <a href="#method2" class="method-hero-card"><span class="dot" style="background:var(--m2)"></span>Print Markups</a>
+                <a href="#method3" class="method-hero-card"><span class="dot" style="background:var(--m3)"></span>PrintNode ZPL</a>
+                <a href="#method4" class="method-hero-card"><span class="dot" style="background:var(--m4)"></span>PrintNode PDF</a>
+            </div>
+        </div>
 
-    <table>
-        <tr>
-            <th>Method</th>
-            <th>Description</th>
-            <th>Best Use Case</th>
-        </tr>
+        <div class="content">
 
-        <tr>
-            <td>Browser SDK</td>
-            <td>Rendering inside browser using canvas</td>
-            <td>Web applications</td>
-        </tr>
+            <!-- ══════════════════════════════════════════════
+                 SECTION: Introduction
+            ══════════════════════════════════════════════ -->
+            <section id="intro">
+                <h2>Introduction</h2>
+                <p>Quandosol is a SaaS platform that allows businesses to design and manage label templates. This API enables printing those labels from any external system — variable data is sent at runtime, and Quandosol handles the rendering and delivery.</p>
 
-        <tr>
-            <td>PrintNode PDF</td>
-            <td>Server generates PDF and sends to printer</td>
-            <td>Standard printers</td>
-        </tr>
+                <div class="two-col">
+                    <div class="col-block">
+                        <h4>Compatible Systems</h4>
+                        <ul>
+                            <li>ERP systems</li>
+                            <li>Warehouse software</li>
+                            <li>Web applications</li>
+                            <li>Desktop applications</li>
+                            <li>POS systems</li>
+                        </ul>
+                    </div>
+                    <div class="col-block">
+                        <h4>High-Level Flow</h4>
+                        <ul>
+                            <li>Design your label template in Quandosol</li>
+                            <li>Define variable placeholders (e.g. <code>{IMEI}</code>)</li>
+                            <li>Call the API with runtime values</li>
+                            <li>Label is rendered and sent to the printer</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
 
-        <tr>
-            <td>PrintNode ZPL</td>
-            <td>Native ZPL commands for Zebra printers</td>
-            <td>Warehouse / thermal printing</td>
-        </tr>
+            <!-- ══════════════════════════════════════════════
+                 SECTION: Methods Overview
+            ══════════════════════════════════════════════ -->
+            <section id="overview">
+                <h2>Methods Overview</h2>
+                <p>There are four ways to interact with label data through the API. Choose the method that fits your workflow.</p>
 
-    </table>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Method</th>
+                            <th>What it Does</th>
+                            <th>Best Use Case</th>
+                            <th>Requires Printer?</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><span style="color:var(--m1);font-weight:700">1</span></td>
+                            <td><strong style="color:var(--m1)">Fetch Markups</strong></td>
+                            <td>Returns raw markup JSON — no printing triggered</td>
+                            <td>Preview, debugging, custom rendering</td>
+                            <td>No</td>
+                        </tr>
+                        <tr>
+                            <td><span style="color:var(--m2);font-weight:700">2</span></td>
+                            <td><strong style="color:var(--m2)">Print Markups</strong></td>
+                            <td>Fetches markup and renders it to the browser canvas + print dialog</td>
+                            <td>Web applications, browser printing</td>
+                            <td>Browser printer</td>
+                        </tr>
+                        <tr>
+                            <td><span style="color:var(--m3);font-weight:700">3</span></td>
+                            <td><strong style="color:var(--m3)">PrintNode ZPL</strong></td>
+                            <td>Generates ZPL commands and sends directly to Zebra printer via PrintNode</td>
+                            <td>Warehouse / thermal printing</td>
+                            <td>Yes — Zebra/ZPL</td>
+                        </tr>
+                        <tr>
+                            <td><span style="color:var(--m4);font-weight:700">4</span></td>
+                            <td><strong style="color:var(--m4)">PrintNode PDF</strong></td>
+                            <td>Renders a vector PDF server-side and sends to printer via PrintNode</td>
+                            <td>Office / standard printers</td>
+                            <td>Yes — any printer</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-    <hr>
+                <div class="callout tip">
+                    <span class="callout-icon">💡</span>
+                    <p><strong>Not sure which to use?</strong> See the <a href="#choosing" style="color:inherit;text-decoration:underline">Choosing a Method</a> section for a scenario-based guide.</p>
+                </div>
+            </section>
 
-    <h2>3. Eligibility & Access Control</h2>
+            <!-- ══════════════════════════════════════════════
+                 SECTION: Eligibility
+            ══════════════════════════════════════════════ -->
+            <section id="eligibility">
+                <h2>Eligibility &amp; Access Control</h2>
+                <ul>
+                    <li>An <strong>Advanced plan</strong> subscription is required to access the API</li>
+                    <li>API credentials must be generated from your Quandosol dashboard</li>
+                    <li>API tokens are <strong>visible only once</strong> at generation time — store them securely</li>
+                    <li>Regenerating a token immediately invalidates the previous one</li>
+                </ul>
+            </section>
 
-    <ul>
-        <li>Advanced plan subscription required</li>
-        <li>API credentials must be generated</li>
-        <li>API tokens are visible only once</li>
-        <li>Regenerating token invalidates old token</li>
-    </ul>
+            <!-- ══════════════════════════════════════════════
+                 SECTION: API Variables
+            ══════════════════════════════════════════════ -->
+            <section id="variables">
+                <h2>API Variables Concept</h2>
+                <p>Inside the label designer you define placeholder variables. These are replaced dynamically at print time with the values you send in the API request.</p>
 
-    <hr>
-
-    <h2>4. API Variables Concept</h2>
-
-    Inside the label designer you define placeholders.
-
-    Example:
-
-    <pre>
-{IMEI}
+                <h4>Define in Designer</h4>
+                <div class="code-wrap">
+          <pre>{IMEI}
 {Model_No}
 {Serial_No}
-{GT_Battery_Ratio}
-</pre>
+{GT_Battery_Ratio}</pre>
+                    <button class="copy-btn">Copy</button>
+                </div>
 
-    These variables will be replaced dynamically during printing.
+                <h4>Send at Runtime</h4>
+                <div class="code-wrap">
+          <pre>{
+  "IMEI": "356938035643809",
+  "Model_No": "iPhone 13",
+  "Serial_No": "SN-A12345",
+  "GT_Battery_Ratio": "92%"
+}</pre>
+                    <button class="copy-btn">Copy</button>
+                </div>
 
-    Example request:
+                <div class="callout note">
+                    <span class="callout-icon">⚠️</span>
+                    <p>Variable names are <strong>case-sensitive</strong>. Make sure the keys in your API request exactly match the placeholders defined in the label template.</p>
+                </div>
+            </section>
 
-    <pre>
-{
- "IMEI":"356938035643809",
- "Model_No":"iPhone 13",
- "Serial_No":"SN-A12345"
-}
-</pre>
+            <!-- ══════════════════════════════════════════════
+                 SECTION: Authentication
+            ══════════════════════════════════════════════ -->
+            <section id="auth">
+                <h2>Authentication</h2>
+                <p>All API requests require two authentication headers. These are available in your Quandosol dashboard under <strong>API Settings</strong>.</p>
 
-    <hr>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr><th>Header</th><th>Description</th><th>Example</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr><td><code>X-API-KEY</code></td><td>Your API Key</td><td><code>splsTpbkLDzYREpXxpTLGA20V7...</code></td></tr>
+                        <tr><td><code>X-API-SECRET</code></td><td>Your API Token</td><td><code>t06utpbYol5mVgnbYp89Ym5q...</code></td></tr>
+                        </tbody>
+                    </table>
+                </div>
 
-    <h2>5. High Level Printing Flow</h2>
+                <div class="callout warn">
+                    <span class="callout-icon">🔐</span>
+                    <p>Never expose your API credentials in frontend code. In production, route API calls through a backend proxy.</p>
+                </div>
+            </section>
 
-    <div class="diagram">
-        Client System
-        │
-        │ API Request
-        ▼
-        Quandosol API
-        │
-        │ Replace Variables
-        ▼
-        Label Markup JSON
-        │
-        ▼
-        Rendering Engine
-        │
-        ▼
-        Printer Output
-    </div>
+            <!-- ══════════════════════════════════════════════
+                 SECTION: SDK & Files Setup
+            ══════════════════════════════════════════════ -->
+            <section id="setup">
+                <h2>SDK &amp; Files Setup</h2>
+                <p>Methods 1 and 2 (browser-based) use the Quandosol JavaScript SDK. Methods 3 and 4 (PrintNode) also use the SDK to trigger server-side printing.</p>
 
-    <hr>
+                <h3>1. Include the SDK</h3>
+                <p>Load the SDK from Quandosol or host it yourself:</p>
+                <div class="code-wrap">
+                    <pre>&lt;script src="https://app.quandosol.com/qcim-label-sdk.js"&gt;&lt;/script&gt;</pre>
+                    <button class="copy-btn">Copy</button>
+                </div>
 
-    <h2>6. Authentication</h2>
+                <h3>2. Configure the SDK</h3>
+                <div class="code-wrap">
+          <pre>QCIMLabelSDK.setConfig({
+  apiBaseUrl:   "https://app.quandosol.com/api",
+  api_key:      "YOUR_API_KEY",
+  api_token:    "YOUR_API_TOKEN",
+  printPageUrl: "./print-label.html",   // required for Method 2 only
+  debug:        true
+});</pre>
+                    <button class="copy-btn">Copy</button>
+                </div>
 
-    Headers required:
-
-    <table>
-        <tr>
-            <th>Header</th>
-            <th>Description</th>
-        </tr>
-
-        <tr>
-            <td>X-API-KEY</td>
-            <td>Your API Key</td>
-        </tr>
-
-        <tr>
-            <td>X-API-SECRET</td>
-            <td>Your API Token</td>
-        </tr>
-
-    </table>
-
-    <hr>
-
-    <h2>7. Browser Printing Endpoint</h2>
-
-    <pre>
-POST /api/custom-labels/print
-</pre>
-
-    Example:
-
-    <pre>
-{
- "label_name":"Label A",
- "amount":1,
- "apiData":{
-  "IMEI":"356938035643809",
-  "Model_No":"iPhone 13"
- }
-}
-</pre>
-
-    <hr>
-
-    <h2>8. SDK Setup</h2>
-
-    Load SDK:
-
-    <pre>
-https://app.quandosol.com/qcim-label-sdk.js
-</pre>
-
-    Configure SDK:
-
-    <pre>
-QCIMLabelSDK.setConfig({
- apiBaseUrl:"https://app.quandosol.com/api",
- api_key:"YOUR_API_KEY",
- api_token:"YOUR_API_TOKEN",
- printPageUrl:"./print-label.html",
- debug:true
-});
-</pre>
-
-    <hr>
-
-    <h2>9. Files Required (With Examples)</h2>
-    <ul>
-        <li>
-            <strong>qcim-label-sdk.js</strong><br>
-            <a href="https://app.quandosol.com/qcim-label-sdk.js" target="_blank">
-                https://app.quandosol.com/qcim-label-sdk.js
-            </a>
-        </li>
-
-        <li>
-            <strong>test_label.html</strong><br>
-            <a href="https://app.quandosol.com/test_label.html" target="_blank">
-                https://app.quandosol.com/test_label.html
-            </a>
-        </li>
-
-        <li>
-            <strong>print-label.html</strong><br>
-            <p>This file runs inside a hidden iframe and renders the label for printing.</p>
-
-            <pre>&lt;!DOCTYPE html&gt;
+                <h3>3. Create <code>print-label.html</code></h3>
+                <p>This file is required <strong>only for Method 2</strong> (Print Markups). It runs inside a hidden iframe and renders the label for the browser print dialog.</p>
+                <div class="code-wrap">
+          <pre>&lt;!DOCTYPE html&gt;
 &lt;html lang="en"&gt;
 &lt;head&gt;
-    &lt;meta charset="UTF-8"/&gt;
-    &lt;title&gt;Print Label&lt;/title&gt;
-
-    &lt;style&gt;
-        html, body {
-            margin: 0;
-            padding: 0;
-            background: white;
-        }
-
-        #printRoot {
-            width: 100%;
-            height: 100%;
-            background: white;
-        }
-
-        img {
-            display: block;
-        }
-    &lt;/style&gt;
+  &lt;meta charset="UTF-8"/&gt;
+  &lt;title&gt;Print Label&lt;/title&gt;
+  &lt;style&gt;
+    html, body { margin: 0; padding: 0; background: white; }
+    #printRoot  { width: 100%; height: 100%; background: white; }
+    img         { display: block; }
+  &lt;/style&gt;
 &lt;/head&gt;
-
 &lt;body&gt;
-
-&lt;div id="printRoot"&gt;&lt;/div&gt;
-
-&lt;script src="https://unpkg.com/bwip-js/dist/bwip-js-min.js"&gt;&lt;/script&gt;
-&lt;script src="./qcim-label-sdk.js"&gt;&lt;/script&gt;
-
+  &lt;div id="printRoot"&gt;&lt;/div&gt;
+  &lt;script src="https://unpkg.com/bwip-js/dist/bwip-js-min.js"&gt;&lt;/script&gt;
+  &lt;script src="./qcim-label-sdk.js"&gt;&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;</pre>
-        </li>
-    </ul>
+                    <button class="copy-btn">Copy</button>
+                </div>
 
+                <h3>Example Files</h3>
+                <ul>
+                    <li><strong>qcim-label-sdk.js</strong> — <a href="https://app.quandosol.com/qcim-label-sdk.js" target="_blank">https://app.quandosol.com/qcim-label-sdk.js</a></li>
+                    <li><strong>test_label.html</strong> — <a href="https://app.quandosol.com/test_label.html" target="_blank">https://app.quandosol.com/test_label.html</a></li>
+                </ul>
+            </section>
 
-    <hr>
+            <!-- ══════════════════════════════════════════════
+                 PRINT METHODS HEADING
+            ══════════════════════════════════════════════ -->
+            <hr class="divider">
+            <section style="padding-top: 56px;">
+                <h2 style="border:none;padding:0;margin:0 0 8px;font-size:28px;">Print Methods</h2>
+                <p>Each method is fully independent. Use one or more depending on your needs.</p>
+            </section>
 
+            <!-- ══════════════════════════════════════════════
+                 METHOD 1 — FETCH MARKUPS
+            ══════════════════════════════════════════════ -->
+            <div class="method-section" id="method1" style="border-color: rgba(167,139,250,.35);">
+                <div class="method-header" style="background: rgba(167,139,250,.07);">
+                    <div class="method-number" style="background:rgba(167,139,250,.15);color:var(--m1);">1</div>
+                    <div class="method-header-text">
+                        <h3 style="color:var(--m1);">Fetch Markups</h3>
+                        <p>Retrieve raw label markup JSON — no printing triggered</p>
+                    </div>
+                    <span class="method-badge" style="color:var(--m1);border-color:rgba(167,139,250,.35);background:rgba(167,139,250,.1);">Preview / Debug</span>
+                </div>
 
-    <h2>10. Browser Printing Example</h2>
+                <div class="method-body">
+                    <p>This method calls the API and returns the fully resolved label markup as JSON — with all variables replaced. No rendering or printing is triggered. Use this to <strong>preview label data</strong>, build custom renderers, or inspect what the label contains before committing to print.</p>
 
-    <pre>
-QCIMLabelSDK.printLabel({
- label_name:"Label A",
- amount:1,
- apiData:{
-  IMEI:"356938035643809",
-  Model_No:"iPhone 13"
- },
- mode:"browser"
-});
-</pre>
+                    <p>When called via the SDK, the response is displayed in a <strong>built-in preview popup</strong> showing stage dimensions, element list, and a raw JSON view.</p>
 
-    Browser printing works by rendering the label to canvas
-    and triggering the browser print dialog.
+                    <h3>API Endpoint</h3>
+                    <div class="code-wrap">
+                        <pre>POST /api/custom-labels/fetch-markups</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
 
-    <hr>
+                    <h3>Request Body</h3>
+                    <div class="code-wrap">
+            <pre>{
+  "label_name": "Label A",
+  "amount":     1,
+  "apiData": {
+    "IMEI":             "356938035643809",
+    "Model_No":         "iPhone 13",
+    "Serial_No":        "SN-A12345",
+    "GT_Battery_Ratio": "92%",
+    "Carriers":         "Unlocked"
+  }
+}</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
 
-    <h2>11. PrintNode Printing</h2>
+                    <h3>Response</h3>
+                    <p>Returns an array of markup objects. Each object contains a <code>stage</code> and an <code>elements</code> array.</p>
+                    <div class="code-wrap">
+            <pre>[
+  {
+    "stage": {
+      "width":      4,
+      "height":     2,
+      "unit":       "in",
+      "background": "#ffffff"
+    },
+    "elements": [
+      { "type": "text",    "text": "iPhone 13",        "x": 20, "y": 15, ... },
+      { "type": "barcode", "format": "code128",        "text": "356938035643809", ... },
+      { "type": "image",   "url": "https://...",       "x": 10, "y": 80, ... }
+    ]
+  }
+]</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
 
-    PrintNode allows server-side printing without browser interaction.
+                    <h3>SDK Usage</h3>
+                    <div class="code-wrap">
+            <pre>QCIMLabelSDK.printLabel({
+  label_name: "Label A",
+  amount:     1,
+  apiData: {
+    IMEI:             "356938035643809",
+    Model_No:         "iPhone 13",
+    Serial_No:        "SN-A12345",
+    GT_Battery_Ratio: "92%",
+    Carriers:         "Unlocked"
+  },
+  mode: "fetch_markups"   // ← this mode
+});</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
 
-    Advantages:
+                    <h3>Flow</h3>
+                    <div class="flow">
+                        <div class="flow-step">Client calls SDK</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">POST /fetch-markups</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Variables resolved</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Markup JSON returned</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Preview popup shown</div>
+                    </div>
 
-    <ul>
-        <li>No browser required</li>
-        <li>Background printing</li>
-        <li>Supports automation</li>
-        <li>Works with network printers</li>
-    </ul>
+                    <div class="callout tip">
+                        <span class="callout-icon">💡</span>
+                        <p>This is the best starting point. Verify that all your variable values are resolving correctly before using any print method.</p>
+                    </div>
+                </div>
+            </div>
 
-    <hr>
+            <!-- ══════════════════════════════════════════════
+                 METHOD 2 — PRINT MARKUPS (Browser)
+            ══════════════════════════════════════════════ -->
+            <div class="method-section" id="method2" style="border-color: rgba(52,211,153,.3); margin-top: 28px;">
+                <div class="method-header" style="background: rgba(52,211,153,.06);">
+                    <div class="method-number" style="background:rgba(52,211,153,.15);color:var(--m2);">2</div>
+                    <div class="method-header-text">
+                        <h3 style="color:var(--m2);">Print Markups</h3>
+                        <p>Fetch markup, render to canvas, open browser print dialog</p>
+                    </div>
+                    <span class="method-badge" style="color:var(--m2);border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.08);">Browser SDK</span>
+                </div>
 
-    <h2>12. PrintNode PDF Printing</h2>
+                <div class="method-body">
+                    <p>This method fetches the markup (same as Method 1) and immediately renders it to an HTML canvas inside a hidden iframe. The browser's native <strong>print dialog</strong> is then triggered automatically.</p>
 
-    Endpoint:
+                    <p>This is the recommended method for <strong>web applications</strong> where no PrintNode setup is required.</p>
 
-    <pre>
-POST /api/custom-labels/print-node-pdf
-</pre>
+                    <h3>Prerequisites</h3>
+                    <ul>
+                        <li>SDK loaded and configured (see <a href="#setup">SDK Setup</a>)</li>
+                        <li><code>print-label.html</code> file present at the configured <code>printPageUrl</code> path</li>
+                        <li><code>bwip-js</code> loaded in <code>print-label.html</code> (for barcode rendering)</li>
+                    </ul>
 
-    Example request:
+                    <h3>API Endpoint</h3>
+                    <div class="code-wrap">
+                        <pre>POST /api/custom-labels/print</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
 
-    <pre>
-{
- "label_name":"Label A",
- "amount":1,
- "printer_id":75236019,
- "apiData":{
-  "IMEI":"356938035643809"
- }
-}
-</pre>
+                    <h3>Request Body</h3>
+                    <div class="code-wrap">
+            <pre>{
+  "label_name": "Label A",
+  "amount":     1,
+  "apiData": {
+    "IMEI":             "356938035643809",
+    "Model_No":         "iPhone 13",
+    "Serial_No":        "SN-A12345",
+    "GT_Battery_Ratio": "92%",
+    "Carriers":         "Unlocked"
+  }
+}</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
 
-    Response:
+                    <h3>SDK Usage</h3>
+                    <div class="code-wrap">
+            <pre>QCIMLabelSDK.printLabel({
+  label_name: "Label A",
+  amount:     1,
+  apiData: {
+    IMEI:             "356938035643809",
+    Model_No:         "iPhone 13",
+    Serial_No:        "SN-A12345",
+    GT_Battery_Ratio: "92%",
+    Carriers:         "Unlocked"
+  },
+  mode: "print_markups"   // ← this mode
+});</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
 
-    <pre>
-{
- "status":"sent_to_printer_png"
-}
-</pre>
+                    <h3>Supported Elements</h3>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Element</th><th>Supported</th></tr></thead>
+                            <tbody>
+                            <tr><td>Text (multi-line, wrapping)</td><td>✅ Yes</td></tr>
+                            <tr><td>Images</td><td>✅ Yes</td></tr>
+                            <tr><td>Barcodes (Code128, Code39, EAN, etc.)</td><td>✅ Yes</td></tr>
+                            <tr><td>QR Code</td><td>✅ Yes</td></tr>
+                            <tr><td>Shapes (Rect, Circle, Ellipse, Arc, Ring, Wedge)</td><td>✅ Yes</td></tr>
+                            <tr><td>Lines</td><td>✅ Yes</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-    <hr>
+                    <h3>Flow</h3>
+                    <div class="flow">
+                        <div class="flow-step">Client calls SDK</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">POST /print</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Markup JSON returned</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Canvas render (iframe)</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Browser print dialog</div>
+                    </div>
+                </div>
+            </div>
 
-    <h3>How PDF Rendering Works</h3>
+            <!-- ══════════════════════════════════════════════
+                 METHOD 3 — PRINTNODE ZPL
+            ══════════════════════════════════════════════ -->
+            <div class="method-section" id="method3" style="border-color: rgba(251,146,60,.3); margin-top: 28px;">
+                <div class="method-header" style="background: rgba(251,146,60,.06);">
+                    <div class="method-number" style="background:rgba(251,146,60,.15);color:var(--m3);">3</div>
+                    <div class="method-header-text">
+                        <h3 style="color:var(--m3);">PrintNode ZPL</h3>
+                        <p>Native ZPL printing to Zebra &amp; thermal printers via PrintNode</p>
+                    </div>
+                    <span class="method-badge" style="color:var(--m3);border-color:rgba(251,146,60,.3);background:rgba(251,146,60,.08);">Server-Side</span>
+                </div>
 
-    <div class="diagram">
-        Label Markup JSON
-        │
-        ▼
-        TCPDF Renderer
-        │
-        ▼
-        Vector PDF
-        │
-        ▼
-        Base64 Encoding
-        │
-        ▼
-        PrintNode API
-        │
-        ▼
-        Printer
-    </div>
+                <div class="method-body">
+                    <p>This method renders the label server-side into a PNG, converts it to ZPL commands (<code>^GF</code> graphic field), and sends it directly to a <strong>Zebra or ZPL-compatible thermal printer</strong> via the PrintNode API — no browser required.</p>
 
-    Supported elements:
+                    <h3>Prerequisites</h3>
+                    <ul>
+                        <li>PrintNode client installed and running on the machine connected to the printer</li>
+                        <li>Printer registered in PrintNode dashboard — retrieve the <code>printer_id</code></li>
+                        <li>SDK loaded and configured</li>
+                    </ul>
 
-    <table>
-        <tr>
-            <th>Element</th>
-            <th>Supported</th>
-        </tr>
+                    <h3>API Endpoint</h3>
+                    <div class="code-wrap">
+                        <pre>POST /api/custom-labels/print-node</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
 
-        <tr><td>Text</td><td>Yes</td></tr>
-        <tr><td>Images</td><td>Yes</td></tr>
-        <tr><td>Barcode</td><td>Yes</td></tr>
-        <tr><td>QR Code</td><td>Yes</td></tr>
-        <tr><td>Shapes</td><td>Yes</td></tr>
-        <tr><td>Lines</td><td>Yes</td></tr>
-    </table>
+                    <h3>Request Body</h3>
+                    <div class="code-wrap">
+            <pre>{
+  "label_name": "Label A",
+  "amount":     1,
+  "printer_id": 75208784,
+  "apiData": {
+    "IMEI":             "356938035643809",
+    "Model_No":         "iPhone 13",
+    "Serial_No":        "SN-A12345",
+    "GT_Battery_Ratio": "92%",
+    "Carriers":         "Unlocked"
+  }
+}</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
 
-    <hr>
+                    <h3>Response</h3>
+                    <div class="code-wrap">
+            <pre>{
+  "status":      "sent_to_printer",
+  "printer_dpi": 203
+}</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
 
-    <h2>13. PrintNode ZPL Printing</h2>
+                    <h3>SDK Usage</h3>
+                    <div class="code-wrap">
+            <pre>QCIMLabelSDK.printLabel({
+  label_name: "Label A",
+  amount:     1,
+  apiData: {
+    IMEI:             "356938035643809",
+    Model_No:         "iPhone 13",
+    Serial_No:        "SN-A12345",
+    GT_Battery_Ratio: "92%",
+    Carriers:         "Unlocked"
+  },
+  mode:       "printNodeZpl",   // ← this mode
+  printer_id: 75208784
+});</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
 
-    Endpoint:
+                    <h3>ZPL Architecture</h3>
+                    <div class="flow">
+                        <div class="flow-step">Markup JSON</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Render to PNG</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">PNG → ZPL (^GF)</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">PrintNode API</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Zebra Printer</div>
+                    </div>
 
-    <pre>
-POST /api/custom-labels/print-node
-</pre>
-
-    Example:
-
-    <pre>
-{
- "label_name":"Label A",
- "amount":1,
- "printer_id":75208784,
- "apiData":{
-  "IMEI":"356938035643809"
- }
-}
-</pre>
-
-    Response:
-
-    <pre>
-{
- "status":"sent_to_printer",
- "printer_dpi":203
-}
-</pre>
-
-    <hr>
-
-    <h3>ZPL Printing Architecture</h3>
-
-    <div class="diagram">
-        Markup JSON
-        │
-        ▼
-        Render to PNG
-        │
-        ▼
-        PNG → ZPL (^GF)
-        │
-        ▼
-        ZPL Commands
-        │
-        ▼
-        Zebra Printer
-    </div>
-
-    <hr>
-
-    <h3>ZPL Command Structure</h3>
-
-    Example ZPL:
-
-    <pre>
-^XA
+                    <h3>ZPL Command Reference</h3>
+                    <div class="code-wrap">
+            <pre>^XA
 ^PW832
 ^LL400
 ^LH0,0
 ^FO0,0
 ^GFA,...
-^XZ
-</pre>
+^XZ</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
 
-    Explanation:
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Command</th><th>Description</th></tr></thead>
+                            <tbody>
+                            <tr><td><code>^PW</code></td><td>Print width in dots</td></tr>
+                            <tr><td><code>^LL</code></td><td>Label length in dots</td></tr>
+                            <tr><td><code>^FO</code></td><td>Field origin (x, y position)</td></tr>
+                            <tr><td><code>^GF</code></td><td>Graphic field — carries the PNG image data</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-    <table>
-        <tr>
-            <th>Command</th>
-            <th>Description</th>
-        </tr>
+                    <div class="callout note">
+                        <span class="callout-icon">⚠️</span>
+                        <p>ZPL printing is best for <strong>Zebra-brand</strong> or other ZPL-compatible thermal printers. For standard office printers, use Method 4 (PrintNode PDF) instead.</p>
+                    </div>
+                </div>
+            </div>
 
-        <tr><td>^PW</td><td>Print width</td></tr>
-        <tr><td>^LL</td><td>Label length</td></tr>
-        <tr><td>^FO</td><td>Field origin</td></tr>
-        <tr><td>^GF</td><td>Graphic field</td></tr>
-    </table>
+            <!-- ══════════════════════════════════════════════
+                 METHOD 4 — PRINTNODE PDF
+            ══════════════════════════════════════════════ -->
+            <div class="method-section" id="method4" style="border-color: rgba(96,165,250,.3); margin-top: 28px;">
+                <div class="method-header" style="background: rgba(96,165,250,.06);">
+                    <div class="method-number" style="background:rgba(96,165,250,.15);color:var(--m4);">4</div>
+                    <div class="method-header-text">
+                        <h3 style="color:var(--m4);">PrintNode PDF</h3>
+                        <p>Server-rendered vector PDF delivered to any printer via PrintNode</p>
+                    </div>
+                    <span class="method-badge" style="color:var(--m4);border-color:rgba(96,165,250,.3);background:rgba(96,165,250,.08);">Server-Side</span>
+                </div>
 
-    <hr>
+                <div class="method-body">
+                    <p>This method renders the label into a <strong>vector PDF</strong> server-side using TCPDF, base64-encodes it, and delivers it to any PrintNode-connected printer. It produces the highest-quality output and works with <strong>any printer</strong> that accepts PDFs.</p>
 
-    <h2>14. Choosing the Right Printing Method</h2>
+                    <h3>Prerequisites</h3>
+                    <ul>
+                        <li>PrintNode client installed and running on the machine connected to the printer</li>
+                        <li>Printer registered in PrintNode dashboard — retrieve the <code>printer_id</code></li>
+                        <li>SDK loaded and configured</li>
+                    </ul>
 
-    <table>
-        <tr>
-            <th>Scenario</th>
-            <th>Recommended Method</th>
-        </tr>
+                    <h3>API Endpoint</h3>
+                    <div class="code-wrap">
+                        <pre>POST /api/custom-labels/print-node-pdf</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
 
-        <tr>
-            <td>Web Application</td>
-            <td>Browser SDK</td>
-        </tr>
+                    <h3>Request Body</h3>
+                    <div class="code-wrap">
+            <pre>{
+  "label_name": "Label A",
+  "amount":     1,
+  "printer_id": 75236019,
+  "apiData": {
+    "IMEI":             "356938035643809",
+    "Model_No":         "iPhone 13",
+    "Serial_No":        "SN-A12345",
+    "GT_Battery_Ratio": "92%",
+    "Carriers":         "Unlocked"
+  }
+}</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
 
-        <tr>
-            <td>Office Printer</td>
-            <td>PrintNode PDF</td>
-        </tr>
+                    <h3>Response</h3>
+                    <div class="code-wrap">
+            <pre>{
+  "status": "sent_to_printer_png"
+}</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
 
-        <tr>
-            <td>Zebra Printer</td>
-            <td>PrintNode ZPL</td>
-        </tr>
+                    <h3>SDK Usage</h3>
+                    <div class="code-wrap">
+            <pre>QCIMLabelSDK.printLabel({
+  label_name: "Label A",
+  amount:     1,
+  apiData: {
+    IMEI:             "356938035643809",
+    Model_No:         "iPhone 13",
+    Serial_No:        "SN-A12345",
+    GT_Battery_Ratio: "92%",
+    Carriers:         "Unlocked"
+  },
+  mode:       "printNodeImage",   // ← this mode
+  printer_id: 75236019
+});</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
 
-        <tr>
-            <td>Warehouse Automation</td>
-            <td>PrintNode ZPL</td>
-        </tr>
+                    <h3>PDF Rendering Architecture</h3>
+                    <div class="flow">
+                        <div class="flow-step">Markup JSON</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">TCPDF Renderer</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Vector PDF</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Base64 Encoded</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">PrintNode API</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Printer</div>
+                    </div>
 
-        <tr>
-            <td>Complex Graphics Labels</td>
-            <td>PrintNode PDF</td>
-        </tr>
+                    <h3>Supported Elements</h3>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Element</th><th>Supported</th></tr></thead>
+                            <tbody>
+                            <tr><td>Text</td><td>✅ Yes</td></tr>
+                            <tr><td>Images</td><td>✅ Yes</td></tr>
+                            <tr><td>Barcode</td><td>✅ Yes</td></tr>
+                            <tr><td>QR Code</td><td>✅ Yes</td></tr>
+                            <tr><td>Shapes</td><td>✅ Yes</td></tr>
+                            <tr><td>Lines</td><td>✅ Yes</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-    </table>
+                    <div class="callout tip">
+                        <span class="callout-icon">💡</span>
+                        <p>PDF is the best choice for <strong>complex labels with graphics</strong> or when printing to standard office or laser printers. ZPL is better for high-speed thermal printing on Zebra hardware.</p>
+                    </div>
+                </div>
+            </div>
 
-    <hr>
+            <!-- ══════════════════════════════════════════════
+                 SECTION: Choosing a Method
+            ══════════════════════════════════════════════ -->
+            <section id="choosing">
+                <h2>Choosing the Right Method</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr><th>Your Scenario</th><th>Recommended Method</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr><td>Preview or inspect label data before printing</td><td><strong style="color:var(--m1)">1 · Fetch Markups</strong></td></tr>
+                        <tr><td>Debug variable substitution</td><td><strong style="color:var(--m1)">1 · Fetch Markups</strong></td></tr>
+                        <tr><td>Web application, browser print dialog</td><td><strong style="color:var(--m2)">2 · Print Markups</strong></td></tr>
+                        <tr><td>Zebra / thermal warehouse printer</td><td><strong style="color:var(--m3)">3 · PrintNode ZPL</strong></td></tr>
+                        <tr><td>Warehouse automation / background printing</td><td><strong style="color:var(--m3)">3 · PrintNode ZPL</strong></td></tr>
+                        <tr><td>Standard office or laser printer</td><td><strong style="color:var(--m4)">4 · PrintNode PDF</strong></td></tr>
+                        <tr><td>Complex graphics or high-quality output</td><td><strong style="color:var(--m4)">4 · PrintNode PDF</strong></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
-    <h2>15. Printer Setup Guide</h2>
+            <!-- ══════════════════════════════════════════════
+                 SECTION: Printer Setup
+            ══════════════════════════════════════════════ -->
+            <section id="printer-setup">
+                <h2>Printer Setup Guide</h2>
+                <p>Required for Methods 3 and 4 (PrintNode). Methods 1 and 2 do not need this setup.</p>
 
-    Steps:
+                <ol class="steps">
+                    <li>Install the PrintNode client from <a href="https://www.printnode.com/download" target="_blank">https://www.printnode.com/download</a></li>
+                    <li>Launch PrintNode and connect your printer</li>
+                    <li>Log in to your PrintNode dashboard and navigate to <strong>Printers</strong></li>
+                    <li>Copy the <strong>Printer ID</strong> for your target printer</li>
+                    <li>Pass the printer ID in your API request as <code>printer_id</code></li>
+                </ol>
 
-    1. Install PrintNode client
+                <div class="code-wrap">
+          <pre>// Example printer IDs
+"printer_id": 75236019    // Divakar's account - ZPL printer
+"printer_id": 75208784    // Vinc's ZPL printer (ZDesigner ZD500R-203dpi)
+"printer_id": 75208780    // Brother HL-5470DW series</pre>
+                    <button class="copy-btn">Copy</button>
+                </div>
+            </section>
 
-    https://www.printnode.com/download
+            <!-- ══════════════════════════════════════════════
+                 SECTION: Errors
+            ══════════════════════════════════════════════ -->
+            <section id="errors">
+                <h2>Error Codes</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>HTTP Status</th><th>Meaning</th><th>Common Cause</th></tr></thead>
+                        <tbody>
+                        <tr><td><code>401</code></td><td>Unauthorized</td><td>Invalid or missing API credentials</td></tr>
+                        <tr><td><code>404</code></td><td>Not Found</td><td>Label name does not exist in your account</td></tr>
+                        <tr><td><code>422</code></td><td>Unprocessable Entity</td><td>Missing or invalid request parameters</td></tr>
+                        <tr><td><code>500</code></td><td>Server Error</td><td>Rendering failure — contact support</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
-    2. Connect printer
+            <!-- ══════════════════════════════════════════════
+                 SECTION: Troubleshooting
+            ══════════════════════════════════════════════ -->
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <ul>
+                    <li>Verify the <code>label_name</code> exactly matches a label saved in your Quandosol account</li>
+                    <li>Check that all API variable keys match the placeholders defined in your label template (case-sensitive)</li>
+                    <li>For PrintNode methods: confirm the <code>printer_id</code> is correct and the printer is online in the PrintNode dashboard</li>
+                    <li>Confirm the PrintNode client is installed and running on the machine connected to the printer</li>
+                    <li>Use <strong>Method 1 (Fetch Markups)</strong> to verify variable substitution is working correctly before attempting any print method</li>
+                    <li>Enable <code>debug: true</code> in the SDK config to see detailed console logs</li>
+                </ul>
+            </section>
 
-    3. Retrieve printer ID
+            <!-- ══════════════════════════════════════════════
+                 SECTION: Best Practices
+            ══════════════════════════════════════════════ -->
+            <section id="best-practices">
+                <h2>Best Practices</h2>
+                <ul>
+                    <li><strong>Never expose API credentials in frontend code.</strong> In production, proxy all API calls through your own backend.</li>
+                    <li>Use <strong>Method 1 (Fetch Markups)</strong> during development to validate your variable data before wiring up any print method.</li>
+                    <li>Cache label template metadata where possible to reduce repeated API calls.</li>
+                    <li>Validate all <code>apiData</code> values on the client side before sending the request.</li>
+                    <li>Store your API token securely immediately after generation — it is shown only once.</li>
+                </ul>
 
-    PrintNode dashboard → Printers
+                <div class="callout success" style="margin-top:28px;">
+                    <span class="callout-icon">✅</span>
+                    <p>Quandosol enables flexible label printing from any system — use <strong>Fetch Markups</strong> to preview, <strong>Print Markups</strong> for browser printing, and <strong>PrintNode ZPL/PDF</strong> for direct server-side delivery to any printer.</p>
+                </div>
+            </section>
 
-    4. Use printer ID in API request
-
-    Example:
-
-    <pre>
-"printer_id":75236019
-</pre>
-
-    <hr>
-
-    <h2>16. Error Codes</h2>
-
-    <table>
-        <tr>
-            <th>Error</th>
-            <th>Description</th>
-        </tr>
-
-        <tr>
-            <td>401</td>
-            <td>Invalid API credentials</td>
-        </tr>
-
-        <tr>
-            <td>404</td>
-            <td>Label not found</td>
-        </tr>
-
-        <tr>
-            <td>422</td>
-            <td>Invalid request parameters</td>
-        </tr>
-
-        <tr>
-            <td>500</td>
-            <td>Server rendering error</td>
-        </tr>
-
-    </table>
-
-    <hr>
-
-    <h2>17. Troubleshooting</h2>
-
-    <ul>
-        <li>Ensure label name exists</li>
-        <li>Check API variables match template</li>
-        <li>Verify printer_id is correct</li>
-        <li>Confirm printer is connected to PrintNode client</li>
-    </ul>
-
-    <hr>
-
-    <h2>18. Best Practices</h2>
-
-    <ul>
-        <li>Do not expose API credentials in frontend</li>
-        <li>Use backend proxy for production</li>
-        <li>Cache label templates when possible</li>
-        <li>Validate API variables before sending</li>
-    </ul>
-
-    <hr>
-
-    <div class="success">
-        Quandosol enables flexible label printing from any system using
-        browser rendering or direct server-side printing.
-    </div>
-
+        </div><!-- /content -->
+    </main>
 </div>
 
 <footer>
-    © 2026 Quandosol · Custom Label Printing API
+    © 2026 Quandosol · Custom Label Printing API Documentation
 </footer>
+
 <script>
-  document.addEventListener("DOMContentLoaded", function(){
-
-    const blocks = document.querySelectorAll("pre");
-
-    blocks.forEach((block) => {
-
-      const container = document.createElement("div");
-      container.className = "code-container";
-
-      block.parentNode.insertBefore(container, block);
-      container.appendChild(block);
-
-      const button = document.createElement("button");
-      button.innerText = "Copy";
-      button.className = "copy-btn";
-
-      container.appendChild(button);
-
-      button.addEventListener("click", async () => {
-
-        const text = block.innerText;
-
-        await navigator.clipboard.writeText(text);
-
-        button.innerText = "Copied!";
-        button.classList.add("copied");
-
-        setTimeout(() => {
-          button.innerText = "Copy";
-          button.classList.remove("copied");
-        },2000);
-
+  // ── Copy buttons ──
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".code-wrap").forEach(wrap => {
+      const btn = wrap.querySelector(".copy-btn");
+      const pre = wrap.querySelector("pre");
+      if (!btn || !pre) return;
+      btn.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(pre.innerText);
+        btn.innerText = "Copied!";
+        btn.classList.add("copied");
+        setTimeout(() => { btn.innerText = "Copy"; btn.classList.remove("copied"); }, 2000);
       });
-
     });
 
+    // ── Scrollspy ──
+    const links = document.querySelectorAll(".nav-link");
+    const sections = Array.from(document.querySelectorAll("section[id], div[id].method-section"));
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          links.forEach(l => {
+            l.classList.toggle("active", l.getAttribute("href") === "#" + id);
+          });
+        }
+      });
+    }, { rootMargin: "-20% 0px -70% 0px" });
+
+    sections.forEach(s => observer.observe(s));
   });
 </script>
+
 </body>
 </html>

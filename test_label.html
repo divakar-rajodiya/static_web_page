@@ -24,18 +24,41 @@
             background: #f5f5f5;
         }
 
+        /* Base button */
         button {
             padding: 6px 12px;
-            background: #007bff;
             color: #fff;
             border: none;
             cursor: pointer;
             border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
         }
 
-        button:hover {
-            background: #0056b3;
+        /* Mode 1 — Fetch Markups (preview popup) */
+        .btn-fetch-markups {
+            background: #6366f1;
         }
+        .btn-fetch-markups:hover { background: #4f46e5; }
+
+        /* Mode 2 — Fetch + Print */
+        .btn-print-markups {
+            background: #16a34a;
+        }
+        .btn-print-markups:hover { background: #15803d; }
+
+        /* Mode 3 — PrintNode ZPL */
+        .btn-printnode-zpl {
+            background: #d97706;
+        }
+        .btn-printnode-zpl:hover { background: #b45309; }
+
+        /* Mode 4 — PrintNode PDF */
+        .btn-printnode-pdf {
+            background: #0284c7;
+        }
+        .btn-printnode-pdf:hover { background: #0369a1; }
     </style>
 </head>
 <body>
@@ -55,10 +78,10 @@
         <th>GT Black List</th>
         <th>Functional Results</th>
         <th>Reg Model Number</th>
-        <th>Fetch Markups</th>
-        <th>Print Markups</th>
-        <th>Print Node Zpl</th>
-        <th>Print Node Image</th>
+        <th title="Fetch markups from API and preview them in a popup">👁 Fetch Markups</th>
+        <th title="Fetch markups from API and send to browser print dialog">🖨 Print Markups</th>
+        <th title="Send label to printer via PrintNode using ZPL format">🖨 PrintNode ZPL</th>
+        <th title="Send label to printer via PrintNode using PDF/Image format">🖨 PrintNode PDF</th>
     </tr>
     </thead>
 
@@ -74,10 +97,10 @@
         <td>No</td>
         <td>Pass</td>
         <td>A2633</td>
-        <td><button onclick="fetchMarkups(this)">fetch Markups</button></td>
-        <td><button onclick="printLabel(this)">Print</button></td>
-        <td><button onclick="printNodeLabel(this)">Print Node Zpl</button></td>
-        <td><button onclick="printNodePdf(this)">Print Node Pdf</button></td>
+        <td><button class="btn-fetch-markups"  onclick="fetchMarkups(this)">👁 Preview</button></td>
+        <td><button class="btn-print-markups"  onclick="printLabel(this)">🖨 Print</button></td>
+        <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
+        <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
     </tr>
 
     <tr>
@@ -91,10 +114,10 @@
         <td>No</td>
         <td>Pass</td>
         <td>A2403</td>
-        <td><button onclick="fetchMarkups(this)">fetch Markups</button></td>
-        <td><button onclick="printLabel(this)">Print</button></td>
-        <td><button onclick="printNodeLabel(this)">Print Node Zpl</button></td>
-        <td><button onclick="printNodePdf(this)">Print Node Pdf</button></td>
+        <td><button class="btn-fetch-markups"  onclick="fetchMarkups(this)">👁 Preview</button></td>
+        <td><button class="btn-print-markups"  onclick="printLabel(this)">🖨 Print</button></td>
+        <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
+        <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
     </tr>
 
     <tr>
@@ -108,11 +131,12 @@
         <td>No</td>
         <td>Pass</td>
         <td>A2633</td>
-        <td><button onclick="fetchMarkups(this)">fetch Markups</button></td>
-        <td><button onclick="printLabel(this)">Print</button></td>
-        <td><button onclick="printNodeLabel(this)">Print Node Zpl</button></td>
-        <td><button onclick="printNodePdf(this)">Print Node Pdf</button></td>
+        <td><button class="btn-fetch-markups"  onclick="fetchMarkups(this)">👁 Preview</button></td>
+        <td><button class="btn-print-markups"  onclick="printLabel(this)">🖨 Print</button></td>
+        <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
+        <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
     </tr>
+
     <tr>
         <td>Label D</td>
         <td>490154203237504</td>
@@ -124,10 +148,10 @@
         <td>No</td>
         <td>Pass</td>
         <td>SM-G991B</td>
-        <td><button onclick="fetchMarkups(this)">fetch Markups</button></td>
-        <td><button onclick="printLabel(this)">Print</button></td>
-        <td><button onclick="printNodeLabel(this)">Print Node Zpl</button></td>
-        <td><button onclick="printNodePdf(this)">Print Node Pdf</button></td>
+        <td><button class="btn-fetch-markups"  onclick="fetchMarkups(this)">👁 Preview</button></td>
+        <td><button class="btn-print-markups"  onclick="printLabel(this)">🖨 Print</button></td>
+        <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
+        <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
     </tr>
 
     <tr>
@@ -141,10 +165,10 @@
         <td>No</td>
         <td>Pass</td>
         <td>SM-S901B</td>
-        <td><button onclick="fetchMarkups(this)">fetch Markups</button></td>
-        <td><button onclick="printLabel(this)">Print</button></td>
-        <td><button onclick="printNodeLabel(this)">Print Node Zpl</button></td>
-        <td><button onclick="printNodePdf(this)">Print Node Pdf</button></td>
+        <td><button class="btn-fetch-markups"  onclick="fetchMarkups(this)">👁 Preview</button></td>
+        <td><button class="btn-print-markups"  onclick="printLabel(this)">🖨 Print</button></td>
+        <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
+        <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
     </tr>
 
     <tr>
@@ -158,10 +182,10 @@
         <td>No</td>
         <td>Pass</td>
         <td>SM-S911B</td>
-        <td><button onclick="fetchMarkups(this)">fetch Markups</button></td>
-        <td><button onclick="printLabel(this)">Print</button></td>
-        <td><button onclick="printNodeLabel(this)">Print Node Zpl</button></td>
-        <td><button onclick="printNodePdf(this)">Print Node Pdf</button></td>
+        <td><button class="btn-fetch-markups"  onclick="fetchMarkups(this)">👁 Preview</button></td>
+        <td><button class="btn-print-markups"  onclick="printLabel(this)">🖨 Print</button></td>
+        <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
+        <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
     </tr>
 
     <tr>
@@ -175,10 +199,10 @@
         <td>No</td>
         <td>Pass</td>
         <td>GB7N6</td>
-        <td><button onclick="fetchMarkups(this)">fetch Markups</button></td>
-        <td><button onclick="printLabel(this)">Print</button></td>
-        <td><button onclick="printNodeLabel(this)">Print Node Zpl</button></td>
-        <td><button onclick="printNodePdf(this)">Print Node Pdf</button></td>
+        <td><button class="btn-fetch-markups"  onclick="fetchMarkups(this)">👁 Preview</button></td>
+        <td><button class="btn-print-markups"  onclick="printLabel(this)">🖨 Print</button></td>
+        <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
+        <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
     </tr>
 
     <tr>
@@ -192,10 +216,10 @@
         <td>No</td>
         <td>Pass</td>
         <td>GVU6C</td>
-        <td><button onclick="fetchMarkups(this)">fetch Markups</button></td>
-        <td><button onclick="printLabel(this)">Print</button></td>
-        <td><button onclick="printNodeLabel(this)">Print Node Zpl</button></td>
-        <td><button onclick="printNodePdf(this)">Print Node Pdf</button></td>
+        <td><button class="btn-fetch-markups"  onclick="fetchMarkups(this)">👁 Preview</button></td>
+        <td><button class="btn-print-markups"  onclick="printLabel(this)">🖨 Print</button></td>
+        <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
+        <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
     </tr>
 
     <tr>
@@ -209,10 +233,10 @@
         <td>No</td>
         <td>Pass</td>
         <td>NE2215</td>
-        <td><button onclick="fetchMarkups(this)">fetch Markups</button></td>
-        <td><button onclick="printLabel(this)">Print</button></td>
-        <td><button onclick="printNodeLabel(this)">Print Node Zpl</button></td>
-        <td><button onclick="printNodePdf(this)">Print Node Pdf</button></td>
+        <td><button class="btn-fetch-markups"  onclick="fetchMarkups(this)">👁 Preview</button></td>
+        <td><button class="btn-print-markups"  onclick="printLabel(this)">🖨 Print</button></td>
+        <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
+        <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
     </tr>
 
     <tr>
@@ -226,10 +250,10 @@
         <td>No</td>
         <td>Pass</td>
         <td>M2011K2C</td>
-        <td><button onclick="fetchMarkups(this)">fetch Markups</button></td>
-        <td><button onclick="printLabel(this)">Print</button></td>
-        <td><button onclick="printNodeLabel(this)">Print Node Zpl</button></td>
-        <td><button onclick="printNodePdf(this)">Print Node Pdf</button></td>
+        <td><button class="btn-fetch-markups"  onclick="fetchMarkups(this)">👁 Preview</button></td>
+        <td><button class="btn-print-markups"  onclick="printLabel(this)">🖨 Print</button></td>
+        <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
+        <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
     </tr>
     </tbody>
 </table>
@@ -238,134 +262,93 @@
 <script src="./qcim-label-sdk.js"></script>
 
 <script>
-    // CUSTOMER CONFIGURATION
-    // local
-    QCIMLabelSDK.setConfig({
-        apiBaseUrl: "http://qcim-backend.test/api",
-        api_key: "yqjHWY8M1MBUdF82cq2EoH4lsuBg8Xwa",
-        api_token: "rvcgcHYJzOz2wzsVKRAQP8XgR3AMth5e4RBtS5y8BOUhxDiFQVlvjI6gv6LYcUb4",
-        printPageUrl: "./print-label.html",
-        debug: true,
-        mode: "fetch_markups",
+  // CUSTOMER CONFIGURATION
+  // local
+  QCIMLabelSDK.setConfig({
+    apiBaseUrl: "http://qcim-backend.test/api",
+    api_key: "yqjHWY8M1MBUdF82cq2EoH4lsuBg8Xwa",
+    api_token: "rvcgcHYJzOz2wzsVKRAQP8XgR3AMth5e4RBtS5y8BOUhxDiFQVlvjI6gv6LYcUb4",
+    printPageUrl: "./print-label.html",
+    debug: true,
+  });
+
+  // production
+  // QCIMLabelSDK.setConfig({
+  //   apiBaseUrl: "https://api.beta.quandosol.com/api",
+  //   api_key: "splsTpbkLDzYREpXxpTLGA20V7szpyda",
+  //   api_token: "t06utpbYol5mVgnbYp89Ym5qId4IuFKFrK6KDfkCZm9Mn0N0v5zqvdcPDJOs2yY8",
+  //   printPageUrl: "./print-label.html",
+  //   debug: true,
+  // });
+
+  /** Helper: extract row data from a button's <tr> */
+  function getRowData(button) {
+    const cells = button.closest("tr").querySelectorAll("td");
+    return {
+      label_name:        cells[0].innerText.trim(),
+      IMEI:              cells[1].innerText.trim(),
+      Model_No:          cells[2].innerText.trim(),
+      Serial_No:         cells[3].innerText.trim(),
+      GT_Battery_Ratio:  cells[4].innerText.trim(),
+      Data_Wipe:         cells[5].innerText.trim(),
+      Carriers:          cells[6].innerText.trim(),
+      GT_Black_List:     cells[7].innerText.trim(),
+      Functional_Results:cells[8].innerText.trim(),
+      Reg_Model_Number:  cells[9].innerText.trim(),
+    };
+  }
+
+  // MODE 1 — Fetch markups → show in preview popup
+  function fetchMarkups(button) {
+    const data = getRowData(button);
+    QCIMLabelSDK.printLabel({
+      label_name: data.label_name,
+      amount: 1,
+      apiData: data,
+      mode: "fetch_markups",
     });
+  }
 
-    // production
-    // QCIMLabelSDK.setConfig({
-    //   apiBaseUrl: "https://api.beta.quandosol.com/api",
-    //   api_key: "splsTpbkLDzYREpXxpTLGA20V7szpyda",
-    //   api_token: "t06utpbYol5mVgnbYp89Ym5qId4IuFKFrK6KDfkCZm9Mn0N0v5zqvdcPDJOs2yY8",
-    //   printPageUrl: "./print-label.html",
-    //   debug: true,
-    //   mode: "fetch_markups", // or "printnode"
-    // });
+  // MODE 2 — Fetch markups → render canvas → browser print dialog
+  function printLabel(button) {
+    const data = getRowData(button);
+    QCIMLabelSDK.printLabel({
+      label_name: data.label_name,
+      amount: 1,
+      apiData: data,
+      mode: "print_markups",
+    });
+  }
 
-    function fetchMarkups(button) {
-      const row = button.closest("tr");
-      const cells = row.querySelectorAll("td");
+  // MODE 3 — Send ZPL to printer via PrintNode
+  function printNodeLabel(button) {
+    const data = getRowData(button);
+    QCIMLabelSDK.printLabel({
+      label_name: data.label_name,
+      amount: 1,
+      apiData: data,
+      mode: "printNodeZpl",
+      //local
+      printer_id: 75236019, // ZDesigner ZD500R-203dpi ZPL – 75208784, printer id  Brother HL-5470DW series – 75208780, 75236019 divakar's account key, vinc's zpl printer 75208784
+      //production
+      // printer_id: 75208784
+    });
+  }
 
-      const apiData = {
-        label_name: cells[0].innerText.trim(),
-        IMEI: cells[1].innerText.trim(),
-        Model_No: cells[2].innerText.trim(),
-        Serial_No: cells[3].innerText.trim(),
-        GT_Battery_Ratio: cells[4].innerText.trim(),
-        Data_Wipe: cells[5].innerText.trim(),
-        Carriers: cells[6].innerText.trim(),
-        GT_Black_List: cells[7].innerText.trim(),
-        Functional_Results: cells[8].innerText.trim(),
-        Reg_Model_Number: cells[9].innerText.trim(),
-      };
-
-      QCIMLabelSDK.printLabel({
-        label_name: apiData.label_name,
-        amount: 1,
-        apiData: apiData,
-        mode: "fetch_markups",
-      });
-    }
-
-    function printLabel(button) {
-        const row = button.closest("tr");
-        const cells = row.querySelectorAll("td");
-
-        const apiData = {
-            label_name: cells[0].innerText.trim(),
-            IMEI: cells[1].innerText.trim(),
-            Model_No: cells[2].innerText.trim(),
-            Serial_No: cells[3].innerText.trim(),
-            GT_Battery_Ratio: cells[4].innerText.trim(),
-            Data_Wipe: cells[5].innerText.trim(),
-            Carriers: cells[6].innerText.trim(),
-            GT_Black_List: cells[7].innerText.trim(),
-            Functional_Results: cells[8].innerText.trim(),
-            Reg_Model_Number: cells[9].innerText.trim(),
-        };
-
-      QCIMLabelSDK.printLabel({
-        label_name: apiData.label_name,
-        amount: 1,
-        apiData: apiData,
-        mode: "print_markups",
-      });
-    }
-
-    function printNodeLabel(button) {
-      const row = button.closest("tr");
-      const cells = row.querySelectorAll("td");
-
-      const apiData = {
-        label_name: cells[0].innerText.trim(),
-        IMEI: cells[1].innerText.trim(),
-        Model_No: cells[2].innerText.trim(),
-        Serial_No: cells[3].innerText.trim(),
-        GT_Battery_Ratio: cells[4].innerText.trim(),
-        Data_Wipe: cells[5].innerText.trim(),
-        Carriers: cells[6].innerText.trim(),
-        GT_Black_List: cells[7].innerText.trim(),
-        Functional_Results: cells[8].innerText.trim(),
-        Reg_Model_Number: cells[9].innerText.trim(),
-      };
-
-      QCIMLabelSDK.printLabel({
-        label_name: apiData.label_name,
-        amount: 1,
-        apiData: apiData,
-        mode: "printNodeZpl",
-        //local
-        printer_id: 75236019 // ZDesigner ZD500R-203dpi ZPL – 75208784, printer id  Brother HL-5470DW series – 75208780, 75236019 divakar's accuount key, vinc's zpl printer 75208784
-        //production
-        // printer_id: 75208784 // ZDesigner ZD500R-203dpi ZPL – 75208784, printer id  Brother HL-5470DW series – 75208780, 75236019 divakar's accuount key, vinc's zpl printer 75208784
-      });
-    }
-
-    function printNodePdf(button){
-      const row = button.closest("tr");
-      const cells = row.querySelectorAll("td");
-
-      const apiData = {
-        label_name: cells[0].innerText.trim(),
-        IMEI: cells[1].innerText.trim(),
-        Model_No: cells[2].innerText.trim(),
-        Serial_No: cells[3].innerText.trim(),
-        GT_Battery_Ratio: cells[4].innerText.trim(),
-        Data_Wipe: cells[5].innerText.trim(),
-        Carriers: cells[6].innerText.trim(),
-        GT_Black_List: cells[7].innerText.trim(),
-        Functional_Results: cells[8].innerText.trim(),
-        Reg_Model_Number: cells[9].innerText.trim(),
-      };
-
-      QCIMLabelSDK.printLabel({
-        label_name: apiData.label_name,
-        amount: 1,
-        apiData: apiData,
-        mode: "printNodeImage",
-        //local
-        printer_id: 75236019 // ZDesigner ZD500R-203dpi ZPL – 75208784, printer id  Brother HL-5470DW series – 75208780, 75236019 divakar's accuount key, vinc's zpl printer 75208784
-        //production
-        // printer_id: 75208784 // ZDesigner ZD500R-203dpi ZPL – 75208784, printer id  Brother HL-5470DW series – 75208780, 75236019 divakar's accuount key, vinc's zpl printer 75208784
-      });
-    }
+  // MODE 4 — Send PDF/Image to printer via PrintNode
+  function printNodePdf(button) {
+    const data = getRowData(button);
+    QCIMLabelSDK.printLabel({
+      label_name: data.label_name,
+      amount: 1,
+      apiData: data,
+      mode: "printNodeImage",
+      //local
+      printer_id: 75236019, // ZDesigner ZD500R-203dpi ZPL – 75208784, printer id  Brother HL-5470DW series – 75208780, 75236019 divakar's account key, vinc's zpl printer 75208784
+      //production
+      // printer_id: 75208784
+    });
+  }
 </script>
 
 </body>
