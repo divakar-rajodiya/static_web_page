@@ -614,7 +614,6 @@
                 </div>
 
                 <div class="callout tip">
-                    <span class="callout-icon">💡</span>
                     <p><strong>Not sure which to use?</strong> See the <a href="#choosing" style="color:inherit;text-decoration:underline">Choosing a Method</a> section for a scenario-based guide.</p>
                 </div>
             </section>
@@ -660,7 +659,6 @@
                 </div>
 
                 <div class="callout note">
-                    <span class="callout-icon">⚠️</span>
                     <p>Variable names are <strong>case-sensitive</strong>. Make sure the keys in your API request exactly match the placeholders defined in the label template.</p>
                 </div>
             </section>
@@ -685,7 +683,6 @@
                 </div>
 
                 <div class="callout warn">
-                    <span class="callout-icon">🔐</span>
                     <p>Never expose your API credentials in frontend code. In production, route API calls through a backend proxy.</p>
                 </div>
             </section>
@@ -828,7 +825,7 @@
     GT_Battery_Ratio: "92%",
     Carriers:         "Unlocked"
   },
-  mode: "fetch_markups"   // ← this mode
+  mode: "fetch_markups"   // <- this mode
 });</pre>
                         <button class="copy-btn">Copy</button>
                     </div>
@@ -847,7 +844,6 @@
                     </div>
 
                     <div class="callout tip">
-                        <span class="callout-icon">💡</span>
                         <p>This is the best starting point. Verify that all your variable values are resolving correctly before using any print method.</p>
                     </div>
                 </div>
@@ -912,7 +908,7 @@
     GT_Battery_Ratio: "92%",
     Carriers:         "Unlocked"
   },
-  mode: "print_markups"   // ← this mode
+  mode: "print_markups"   // <- this mode
 });</pre>
                         <button class="copy-btn">Copy</button>
                     </div>
@@ -1014,7 +1010,7 @@
     GT_Battery_Ratio: "92%",
     Carriers:         "Unlocked"
   },
-  mode:       "printNodeZpl",   // ← this mode
+  mode:       "printNodeZpl",   // <- this mode
   printer_id: 75208784
 });</pre>
                         <button class="copy-btn">Copy</button>
@@ -1058,7 +1054,6 @@
                     </div>
 
                     <div class="callout note">
-                        <span class="callout-icon">⚠️</span>
                         <p>ZPL printing is best for <strong>Zebra-brand</strong> or other ZPL-compatible thermal printers. For standard office printers, use Method 4 (PrintNode PDF) instead.</p>
                     </div>
                 </div>
@@ -1130,7 +1125,7 @@
     GT_Battery_Ratio: "92%",
     Carriers:         "Unlocked"
   },
-  mode:       "printNodeImage",   // ← this mode
+  mode:       "printNodeImage",   // <- this mode
   printer_id: 75236019
 });</pre>
                         <button class="copy-btn">Copy</button>
@@ -1167,7 +1162,6 @@
                     </div>
 
                     <div class="callout tip">
-                        <span class="callout-icon">💡</span>
                         <p>PDF is the best choice for <strong>complex labels with graphics</strong> or when printing to standard office or laser printers. ZPL is better for high-speed thermal printing on Zebra hardware.</p>
                     </div>
                 </div>
@@ -1184,13 +1178,13 @@
                         <tr><th>Your Scenario</th><th>Recommended Method</th></tr>
                         </thead>
                         <tbody>
-                        <tr><td>Preview or inspect label data before printing</td><td><strong style="color:var(--m1)">1 · Fetch Markups</strong></td></tr>
-                        <tr><td>Debug variable substitution</td><td><strong style="color:var(--m1)">1 · Fetch Markups</strong></td></tr>
-                        <tr><td>Web application, browser print dialog</td><td><strong style="color:var(--m2)">2 · Print Markups</strong></td></tr>
-                        <tr><td>Zebra / thermal warehouse printer</td><td><strong style="color:var(--m3)">3 · PrintNode ZPL</strong></td></tr>
-                        <tr><td>Warehouse automation / background printing</td><td><strong style="color:var(--m3)">3 · PrintNode ZPL</strong></td></tr>
-                        <tr><td>Standard office or laser printer</td><td><strong style="color:var(--m4)">4 · PrintNode PDF</strong></td></tr>
-                        <tr><td>Complex graphics or high-quality output</td><td><strong style="color:var(--m4)">4 · PrintNode PDF</strong></td></tr>
+                        <tr><td>Preview or inspect label data before printing</td><td><strong style="color:var(--m1)">1 - Fetch Markups</strong></td></tr>
+                        <tr><td>Debug variable substitution</td><td><strong style="color:var(--m1)">1 - Fetch Markups</strong></td></tr>
+                        <tr><td>Web application, browser print dialog</td><td><strong style="color:var(--m2)">2 - Print Markups</strong></td></tr>
+                        <tr><td>Zebra / thermal warehouse printer</td><td><strong style="color:var(--m3)">3 - PrintNode ZPL</strong></td></tr>
+                        <tr><td>Warehouse automation / background printing</td><td><strong style="color:var(--m3)">3 - PrintNode ZPL</strong></td></tr>
+                        <tr><td>Standard office or laser printer</td><td><strong style="color:var(--m4)">4 - PrintNode PDF</strong></td></tr>
+                        <tr><td>Complex graphics or high-quality output</td><td><strong style="color:var(--m4)">4 - PrintNode PDF</strong></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1277,7 +1271,7 @@
 </div>
 
 <footer>
-    © 2026 Quandosol · Custom Label Printing API Documentation
+    © 2026 Quandosol - Custom Label Printing API Documentation
 </footer>
 
 <script>
