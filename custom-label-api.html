@@ -830,11 +830,10 @@
                         <button class="copy-btn">Copy</button>
                     </div>
 
-                    <h3>🧪 Quick API Test (Browser Console)</h3>
-                    <p>Want to test the endpoint directly without setting up the SDK? Paste this script into your browser's DevTools console (<strong>F12 → Console</strong>) from any regular webpage (e.g. your own site or google.com). It will hit the API and print the full response.</p>
+                    <h3>Quick API Test (Browser Console)</h3>
+                    <p>Want to test the endpoint directly without setting up the SDK? Paste this script into your browser's DevTools console (<strong>F12 -> Console</strong>) from any regular webpage (e.g. your own site or google.com). It will hit the API and print the full response.</p>
 
                     <div class="callout note">
-                        <span class="callout-icon">⚠️</span>
                         <p>Do <strong>not</strong> run this from a <code>chrome://</code> page — those block all outgoing requests. Use any normal <code>http://</code> or <code>https://</code> page instead. Also ensure your server's CORS config allows the origin you're running from (see <a href="#cors-note" style="color:inherit;text-decoration:underline;">CORS note</a> below).</p>
                     </div>
 
@@ -858,16 +857,16 @@
     Functional_Results: "Pass",
     Reg_Model_Number  : "A2633",
   };
-  // ─────────────────────────────────────────────────────────
+  // -----------------------------------------
 
   const url = `${API_BASE_URL}/custom-labels/fetch-markups`;
 
-  console.log("%c─────────────────────────────────────────", "color:#6366f1");
-  console.log("%c 🏷️  QCIM fetch_markups Debug", "color:#6366f1;font-size:14px;font-weight:bold");
-  console.log("%c─────────────────────────────────────────", "color:#6366f1");
-  console.log(`%c Endpoint → %c${url}`, "color:#9ca3af", "color:#f59e0b;font-weight:bold");
-  console.log("%c Payload  →", "color:#9ca3af", { label_name: LABEL_NAME, amount: 1, apiData: API_DATA });
-  console.log("%c⏳ Sending request…", "color:#a78bfa;font-style:italic");
+  console.log("%c-----------------------------------------", "color:#6366f1");
+  console.log("%cQCIM fetch_markups Debug", "color:#6366f1;font-size:14px;font-weight:bold");
+  console.log("%c-----------------------------------------", "color:#6366f1");
+  console.log(`%c Endpoint -> %c${url}`, "color:#9ca3af", "color:#f59e0b;font-weight:bold");
+  console.log("%c Payload  ->", "color:#9ca3af", { label_name: LABEL_NAME, amount: 1, apiData: API_DATA });
+  console.log("%cSending request...", "color:#a78bfa;font-style:italic");
 
   let res, data;
 
@@ -883,18 +882,18 @@
     });
     data = await res.json();
   } catch (err) {
-    console.error("%c❌ Network error:", "color:#f87171;font-weight:bold", err.message);
+    console.error("%cNetwork error:", "color:#f87171;font-weight:bold", err.message);
     return;
   }
 
   console.log(`%c HTTP ${res.status} ${res.statusText}`, res.ok ? "color:#4ade80;font-weight:bold" : "color:#f87171;font-weight:bold");
 
   if (!res.ok) {
-    console.error("%c❌ API Error:", "color:#f87171;font-weight:bold", data);
+    console.error("%cAPI Error:", "color:#f87171;font-weight:bold", data);
     return;
   }
 
-  console.log("%c✅ Full API Response:", "color:#4ade80;font-weight:bold");
+  console.log("%cFull API Response:", "color:#4ade80;font-weight:bold");
   console.log(data);
 
 })();</pre>
