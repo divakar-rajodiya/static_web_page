@@ -322,6 +322,8 @@
 
   // MODE 3 — Send ZPL to printer via PrintNode
   function printNodeLabel(button) {
+    alert("This API is disabled.");
+    return ;
     const data = getRowData(button);
     QCIMLabelSDK.printLabel({
       label_name: data.label_name,
@@ -337,6 +339,8 @@
 
   // MODE 4 — Send PDF/Image to printer via PrintNode
   function printNodePdf(button) {
+    alert("This API is disabled.");
+    return ;
     const data = getRowData(button);
     QCIMLabelSDK.printLabel({
       label_name: data.label_name,
