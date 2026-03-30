@@ -760,6 +760,7 @@
                                                   apiData = {},
                                                   mode = "fetch_markups",
                                                   printer_id = null,
+                                                  onSVG = null,
                                               }) {
         try {
             // ── Mode 1: Fetch markups and show preview popup ──────────────
@@ -804,8 +805,48 @@
                 alert("✅ Sent to printer successfully (PDF/Image)");
             }
 
+              // ── Mode 5: Export SVG ────────────────────────────────────────
+              // Fetches markups from the API, converts each one to a
+              // self-contained SVG file, and either:
+              //   • triggers a browser download for every SVG, OR
+              //   • calls onSVG(svgString, index, total) if provided
+              //
+              // Usage:
+              //   QCIMLabelSDK.printLabel({
+              //     label_name: "My Label",
+              //     amount: 1,
+              //     apiData: { ... },
+              //     mode: "export_svg",
+              //     // optional callback — if omitted, files are auto-downloaded
+              //     onSVG: (svgString, index, total) => { /* handle the SVG */ },
+            //   });
+            else if (mode === "export_svg") {
+                log("Mode: export_svg — fetching markups…");
+                const markups = await fetchMarkup({ label_name, amount, apiData });
+                log("export_svg: received", markups.length, "markup(s)");
+
+                const total = markups.length;
+                for (let i = 0; i < total; i++) {
+                    const svgString = await renderMarkupToSVG(markups[i]);
+                    log(`export_svg: rendered markup ${i + 1}/${total}`);
+
+                    if (typeof onSVG === "function") {
+                        // Developer-provided callback — hand off the SVG string
+                        onSVG(svgString, i, total);
+                    } else {
+                        // Default: trigger a browser download
+                        const filename = total === 1
+                          ? `${label_name || "label"}.svg`
+                          : `${label_name || "label"}_${i + 1}.svg`;
+                        downloadTextFile(svgString, filename, "image/svg+xml");
+                    }
+                }
+
+                log("export_svg: done");
+            }
+
             else {
-                throw new Error(`Unknown mode: "${mode}". Valid modes: fetch_markups, print_markups, printNodeZpl, printNodeImage`);
+                throw new Error(`Unknown mode: "${mode}". Valid modes: fetch_markups, print_markups, printNodeZpl, printNodeImage, export_svg`);
             }
         } catch (err) {
             console.error("[QCIM LABEL SDK ERROR]", err);
@@ -870,27 +911,111 @@
         document.head.appendChild(style);
     }
 
-    function generateBarcodeImage(format, text, width = 200, height = 200) {
-        return new Promise((resolve) => {
-            try {
-                const canvas = document.createElement("canvas");
-                const formatMap = {
-                    qrcode: "qrcode", "qr code": "qrcode",
-                    code128: "code128", code39: "code39",
-                    ean13: "ean13", ean8: "ean8",
-                    isbn: "isbn", ismn: "ismn", issn: "issn",
-                    pdf417: "pdf417", datamatrix: "datamatrix",
-                };
-                const bcid = formatMap[format?.toLowerCase()] || format?.toLowerCase();
-                bwipjs.toCanvas(canvas, { bcid, text, scale: 3, height: height / 3, includetext: false });
+    /**
+     * Ensure bwip-js is available on the current page.
+     * If it is already loaded (e.g. print-label.html includes it), resolves immediately.
+     * Otherwise dynamically injects the CDN script and waits for it to load.
+     */
+    const BWIP_CDN = "https://unpkg.com/bwip-js/dist/bwip-js-min.js";
+    let _bwipLoadPromise = null;
+
+    function ensureBwipJs() {
+        // Already available — nothing to do
+        if (typeof bwipjs !== "undefined") return Promise.resolve();
+
+        // Already injecting — return the same promise
+        if (_bwipLoadPromise) return _bwipLoadPromise;
+
+        _bwipLoadPromise = new Promise((resolve, reject) => {
+            log("bwip-js not found on this page — loading from CDN…");
+            const script = document.createElement("script");
+            script.src = BWIP_CDN;
+            script.onload  = () => { log("bwip-js loaded from CDN"); resolve(); };
+            script.onerror = () => reject(new Error("Failed to load bwip-js from CDN: " + BWIP_CDN));
+            document.head.appendChild(script);
+        });
+
+        return _bwipLoadPromise;
+    }
+
+    /**
+     * Generate a barcode / QR code as a pure SVG string using bwip-js toSVG().
+     * This is infinitely scalable — no raster PNG, no quality loss at any size.
+     * Falls back to a high-res PNG data-URI if toSVG is unavailable.
+     */
+    async function generateBarcodeSVG(format, text, targetWidth, targetHeight) {
+        try {
+            await ensureBwipJs();
+
+            const formatMap = {
+                qrcode: "qrcode", "qr code": "qrcode",
+                code128: "code128", code39: "code39",
+                ean13: "ean13", ean8: "ean8",
+                isbn: "isbn", ismn: "ismn", issn: "issn",
+                pdf417: "pdf417", datamatrix: "datamatrix",
+            };
+            const bcid = formatMap[format?.toLowerCase()] || format?.toLowerCase();
+            const bwipHeightMm = Math.max(5, Math.round(((targetHeight || 100) / 96) * 25.4));
+
+            // ── Preferred path: native SVG output (vector, infinite quality) ──
+            if (typeof bwipjs.toSVG === "function") {
+                const rawSvg = bwipjs.toSVG({
+                    bcid,
+                    text,
+                    scale: 3,
+                    height: bwipHeightMm,
+                    includetext: false,
+                    paddingwidth: 0,
+                    paddingheight: 0,
+                });
+                // rawSvg is a full <svg>…</svg> string.
+                // Strip its own width/height so our wrapper controls sizing.
+                return { type: "svg", data: rawSvg };
+            }
+
+            // ── Fallback: high-res PNG embedded as data-URI ────────────────
+            const canvas = document.createElement("canvas");
+            bwipjs.toCanvas(canvas, {
+                bcid,
+                text,
+                scale: 12,          // very high scale for maximum raster clarity
+                height: bwipHeightMm,
+                includetext: false,
+                paddingwidth: 0,
+                paddingheight: 0,
+            });
+            return { type: "png", data: canvas.toDataURL("image/png") };
+
+        } catch (e) {
+            console.error("[QCIM LABEL SDK] SVG barcode generation failed:", format, text, e);
+            return null;
+        }
+    }
+
+    async function generateBarcodeImage(format, text, width = 200, height = 200) {
+        try {
+            await ensureBwipJs();
+            const canvas = document.createElement("canvas");
+            const formatMap = {
+                qrcode: "qrcode", "qr code": "qrcode",
+                code128: "code128", code39: "code39",
+                ean13: "ean13", ean8: "ean8",
+                isbn: "isbn", ismn: "ismn", issn: "issn",
+                pdf417: "pdf417", datamatrix: "datamatrix",
+            };
+            const bcid = formatMap[format?.toLowerCase()] || format?.toLowerCase();
+            // High-res render: scale:12 gives sharp output at 4× canvas SCALE
+            const bwipH = Math.max(5, Math.round((height / 96) * 25.4));
+            bwipjs.toCanvas(canvas, { bcid, text, scale: 12, height: bwipH, includetext: false, paddingwidth: 0, paddingheight: 0 });
+            return await new Promise((resolve) => {
                 const img = new Image();
                 img.onload = () => resolve(img);
                 img.src = canvas.toDataURL("image/png");
-            } catch (e) {
-                console.error("Barcode generation failed:", format, e);
-                resolve(null);
-            }
-        });
+            });
+        } catch (e) {
+            console.error("[QCIM LABEL SDK] Barcode generation failed:", format, e);
+            return null;
+        }
     }
 
     async function renderMarkupToCanvas(markup) {
@@ -1099,6 +1224,363 @@
 
         return { canvas, inchWidth, inchHeight };
     }
+
+    // ============================================================
+    // SVG RENDERER
+    // Converts a single markup object → SVG string.
+    // All element types that renderMarkupToCanvas handles are
+    // supported. Barcodes and external images are embedded as
+    // base64 <image> elements so the file is fully self-contained.
+    // ============================================================
+
+    /**
+     * Fetch an image URL and return a base64 data-URI string.
+     * Returns null on failure (same contract as loadImage()).
+     */
+    function imageUrlToDataUri(src) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+                try {
+                    const c = document.createElement("canvas");
+                    c.width = img.naturalWidth;
+                    c.height = img.naturalHeight;
+                    c.getContext("2d").drawImage(img, 0, 0);
+                    resolve(c.toDataURL("image/png"));
+                } catch (e) {
+                    resolve(null);
+                }
+            };
+            img.onerror = () => resolve(null);
+            img.src = src;
+        });
+    }
+
+
+    /**
+     * Escape a string for safe inclusion in SVG text / attribute values.
+     */
+    function svgEscape(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+    }
+
+    /**
+     * Build an SVG `transform` attribute value from element properties.
+     * Matches the ctx.translate / rotate / scale calls in renderMarkupToCanvas.
+     */
+    function buildSvgTransform(el) {
+        const x = el.x || 0;
+        const y = el.y || 0;
+        const rot = el.rotation || 0;
+        const sx = el.scaleX || 1;
+        const sy = el.scaleY || 1;
+
+        // Order: translate → rotate → scale  (same as canvas save/translate/rotate/scale)
+        let t = `translate(${x} ${y})`;
+        if (rot) t += ` rotate(${rot})`;
+        if (sx !== 1 || sy !== 1) t += ` scale(${sx} ${sy})`;
+        return t;
+    }
+
+    /**
+     * Wrap plain text into lines, honoring a max pixel width.
+     * Mirrors the wrapText() logic inside renderMarkupToCanvas.
+     * Uses an off-screen canvas for measurement.
+     */
+    function wrapTextForSvg(text, fontCss, maxWidth) {
+        if (!maxWidth || maxWidth <= 0) return text.trim().split("\n");
+
+        // Measure using a hidden canvas
+        const mc = document.createElement("canvas");
+        const mctx = mc.getContext("2d");
+        mctx.font = fontCss;
+
+        function measure(str) { return mctx.measureText(str).width; }
+
+        const rawLines = (text || "").split("\n");
+        const result = [];
+
+        for (const raw of rawLines) {
+            const words = raw.trim().split(" ");
+            let current = "";
+
+            for (const word of words) {
+                if (measure(word) > maxWidth) {
+                    if (current) { result.push(current); current = ""; }
+                    let charBuf = "";
+                    for (const ch of word) {
+                        const test = charBuf + ch;
+                        if (measure(test) > maxWidth && charBuf !== "") { result.push(charBuf); charBuf = ch; }
+                        else charBuf = test;
+                    }
+                    if (charBuf) current = charBuf;
+                    continue;
+                }
+                const test = current ? current + " " + word : word;
+                if (measure(test) > maxWidth && current !== "") { result.push(current); current = word; }
+                else current = test;
+            }
+            if (current) result.push(current);
+        }
+
+        return result.length ? result : [""];
+    }
+
+    /**
+     * Convert one markup object to a complete SVG string.
+     * This is async because barcodes and images need async loading.
+     *
+     * @param {object} markup  - Single markup (stage + elements)
+     * @returns {Promise<string>} - Full SVG markup string
+     */
+    async function renderMarkupToSVG(markup) {
+        const stage = markup.stage || {};
+        const inchWidth  = unitToInch(stage.unit, stage.width  || 4);
+        const inchHeight = unitToInch(stage.unit, stage.height || 2);
+        const pxW = inchWidth  * DPI;
+        const pxH = inchHeight * DPI;
+
+        const bg = stage.background || "#ffffff";
+
+        // We collect SVG element strings into this array
+        const parts = [];
+
+        for (const el of (markup.elements || [])) {
+            const opacity  = el.opacity  != null ? el.opacity  : 1;
+            const transform = buildSvgTransform(el);
+            const gOpen  = `<g transform="${svgEscape(transform)}" opacity="${opacity}">`;
+            const gClose = `</g>`;
+
+            // ── text ──────────────────────────────────────────────────────
+            if (el.type === "text") {
+                const fontSize   = el.font?.size   || 14;
+                const fontFamily = el.font?.family || "Arial";
+                const fontStyle  = el.font?.style  || "normal";
+                const color      = el.font?.color  || "#000000";
+                const align      = el.align         || "left";
+                const lineHeight = fontSize * 1.2;
+                const maxWidth   = (el.width && el.width > 0) ? el.width : (pxW - (el.x || 0));
+
+                const fontCss = `${fontStyle} ${fontSize}px ${fontFamily}`;
+                const lines   = wrapTextForSvg(el.text || "", fontCss, maxWidth);
+
+                // SVG text-anchor maps to canvas textAlign
+                const anchor = align === "right" ? "end" : align === "center" ? "middle" : "start";
+                // x offset for the text element itself (0-based inside the group)
+                const textX  = align === "right" ? maxWidth : align === "center" ? maxWidth / 2 : 0;
+
+                const tspans = lines.map((line, i) =>
+                  `<tspan x="${textX}" dy="${i === 0 ? 0 : lineHeight}">${svgEscape(line)}</tspan>`
+                ).join("");
+
+                parts.push(`${gOpen}
+  <text
+    x="${textX}"
+    y="0"
+    font-size="${fontSize}"
+    font-family="${svgEscape(fontFamily)}"
+    font-style="${svgEscape(fontStyle)}"
+    fill="${svgEscape(color)}"
+    text-anchor="${anchor}"
+    dominant-baseline="text-before-edge"
+  >${tspans}</text>
+${gClose}`);
+            }
+
+            // ── image ─────────────────────────────────────────────────────
+            else if (el.type === "image") {
+                const dataUri = await imageUrlToDataUri(el.url);
+                if (dataUri) {
+                    parts.push(`${gOpen}
+  <image href="${dataUri}" x="0" y="0" width="${el.width || 0}" height="${el.height || 0}" preserveAspectRatio="none"/>
+${gClose}`);
+                }
+            }
+
+            // ── barcode ───────────────────────────────────────────────────
+            else if (el.type === "barcode") {
+                const bw = el.width  || 200;
+                const bh = el.height || 200;
+                const barcode = await generateBarcodeSVG(el.format, el.text || "", bw, bh);
+                if (barcode) {
+                    if (barcode.type === "svg") {
+                        // bwip-js toSVG() returns a full <svg width="Npx" height="Mpx" ...> string.
+                        // Strategy:
+                        //   1. Extract the inner viewBox (or derive it from width/height attrs).
+                        //   2. Rewrite the root <svg> tag so it has:
+                        //        - our target width/height (el.width × el.height)
+                        //        - the original viewBox  → browser scales vector content to fill
+                        //        - preserveAspectRatio="none" → stretch to fit exactly
+                        let svgStr = barcode.data;
+
+                        // Extract existing viewBox attribute if present
+                        const vbMatch = svgStr.match(/viewBox=["']([^"']+)["']/);
+                        let viewBox = vbMatch ? vbMatch[1] : null;
+
+                        if (!viewBox) {
+                            // Derive viewBox from the width/height attrs on the root <svg>
+                            const wMatch = svgStr.match(/<svg[^>]*\swidth=["']([0-9.]+)/);
+                            const hMatch = svgStr.match(/<svg[^>]*\sheight=["']([0-9.]+)/);
+                            const svgW = wMatch ? parseFloat(wMatch[1]) : bw;
+                            const svgH = hMatch ? parseFloat(hMatch[1]) : bh;
+                            viewBox = `0 0 ${svgW} ${svgH}`;
+                        }
+
+                        // Replace the opening <svg ...> tag entirely with our controlled version
+                        svgStr = svgStr.replace(
+                          /<svg[^>]*>/,
+                          `<svg xmlns="http://www.w3.org/2000/svg" width="${bw}" height="${bh}" viewBox="${viewBox}" preserveAspectRatio="none">`
+                        );
+
+                        parts.push(gOpen + "\n  " + svgStr + "\n" + gClose);
+                    } else {
+                        // PNG fallback — embed as high-res raster
+                        parts.push(`${gOpen}
+  <image href="${barcode.data}" x="0" y="0" width="${bw}" height="${bh}" preserveAspectRatio="none"/>
+${gClose}`);
+                    }
+                }
+            }
+
+            // ── line ──────────────────────────────────────────────────────
+            else if (el.type === "line") {
+                const points = el.points || [];
+                if (points.length >= 4) {
+                    let d = `M ${points[0]} ${points[1]}`;
+                    for (let i = 2; i < points.length; i += 2) d += ` L ${points[i]} ${points[i + 1]}`;
+                    parts.push(`${gOpen}
+  <path d="${d}" stroke="${svgEscape(el.stroke || "#000000")}" stroke-width="${el.strokeWidth || 2}" fill="none"/>
+${gClose}`);
+                }
+            }
+
+            // ── rect ──────────────────────────────────────────────────────
+            else if (el.type === "rect") {
+                const fillAttr   = el.fill   ? `fill="${svgEscape(el.fill)}"` : `fill="none"`;
+                const strokeAttr = el.stroke ? `stroke="${svgEscape(el.stroke)}" stroke-width="${el.strokeWidth || 1}"` : `stroke="none"`;
+                parts.push(`${gOpen}
+  <rect x="0" y="0" width="${el.width || 0}" height="${el.height || 0}" ${fillAttr} ${strokeAttr}/>
+${gClose}`);
+            }
+
+            // ── circle ────────────────────────────────────────────────────
+            else if (el.type === "circle") {
+                const r = el.radius || 10;
+                const fillAttr   = (el.fill   && el.fill   !== "transparent") ? `fill="${svgEscape(el.fill)}"` : `fill="none"`;
+                const strokeAttr = el.stroke ? `stroke="${svgEscape(el.stroke)}" stroke-width="${el.strokeWidth || 1}"` : `stroke="none"`;
+                parts.push(`${gOpen}
+  <circle cx="0" cy="0" r="${r}" ${fillAttr} ${strokeAttr}/>
+${gClose}`);
+            }
+
+            // ── ellipse ───────────────────────────────────────────────────
+            else if (el.type === "ellipse") {
+                const rx = el.radiusX || 20, ry = el.radiusY || 10;
+                const fillAttr   = (el.fill   && el.fill   !== "transparent") ? `fill="${svgEscape(el.fill)}"` : `fill="none"`;
+                const strokeAttr = el.stroke ? `stroke="${svgEscape(el.stroke)}" stroke-width="${el.strokeWidth || 1}"` : `stroke="none"`;
+                parts.push(`${gOpen}
+  <ellipse cx="0" cy="0" rx="${rx}" ry="${ry}" ${fillAttr} ${strokeAttr}/>
+${gClose}`);
+            }
+
+            // ── wedge ─────────────────────────────────────────────────────
+            else if (el.type === "wedge") {
+                const radius   = el.radius || 50;
+                const angleRad = ((el.angle || 60) * Math.PI) / 180;
+                const ex = radius * Math.cos(angleRad);
+                const ey = radius * Math.sin(angleRad);
+                const laf = angleRad > Math.PI ? 1 : 0;
+                const d = `M 0 0 L ${radius} 0 A ${radius} ${radius} 0 ${laf} 1 ${ex} ${ey} Z`;
+                const fillAttr   = (el.fill   && el.fill   !== "transparent") ? `fill="${svgEscape(el.fill)}"` : `fill="none"`;
+                const strokeAttr = el.stroke ? `stroke="${svgEscape(el.stroke)}" stroke-width="${el.strokeWidth || 1}"` : `stroke="none"`;
+                parts.push(`${gOpen}
+  <path d="${d}" ${fillAttr} ${strokeAttr}/>
+${gClose}`);
+            }
+
+            // ── ring ──────────────────────────────────────────────────────
+            else if (el.type === "ring") {
+                const outerR = el.outerRadius || 20, innerR = el.innerRadius || 10;
+                // Use clip-path technique: draw outer circle, cut inner with evenodd
+                const d = `M 0 ${outerR} A ${outerR} ${outerR} 0 1 0 0 ${-outerR} A ${outerR} ${outerR} 0 1 0 0 ${outerR} Z ` +
+                  `M 0 ${innerR} A ${innerR} ${innerR} 0 1 0 0 ${-innerR} A ${innerR} ${innerR} 0 1 0 0 ${innerR} Z`;
+                const fillAttr   = (el.fill && el.fill !== "transparent") ? `fill="${svgEscape(el.fill)}"` : `fill="none"`;
+                const strokeAttr = el.stroke ? `stroke="${svgEscape(el.stroke)}" stroke-width="${el.strokeWidth || 1}"` : `stroke="none"`;
+                parts.push(`${gOpen}
+  <path d="${d}" fill-rule="evenodd" ${fillAttr} ${strokeAttr}/>
+${gClose}`);
+            }
+
+            // ── arc ───────────────────────────────────────────────────────
+            else if (el.type === "arc") {
+                const outerR = el.outerRadius || 40, innerR = el.innerRadius || 20;
+                const sweepRad = ((el.angle || 90) * Math.PI) / 180;
+                const laf = sweepRad > Math.PI ? 1 : 0;
+                const ox1 = outerR, oy1 = 0;
+                const ox2 = outerR * Math.cos(sweepRad);
+                const oy2 = outerR * Math.sin(sweepRad);
+                const ix1 = innerR * Math.cos(sweepRad);
+                const iy1 = innerR * Math.sin(sweepRad);
+                const ix2 = innerR, iy2 = 0;
+                const d = `M ${ox1} ${oy1} A ${outerR} ${outerR} 0 ${laf} 1 ${ox2} ${oy2} ` +
+                  `L ${ix1} ${iy1} A ${innerR} ${innerR} 0 ${laf} 0 ${ix2} ${iy2} Z`;
+                const fillAttr   = (el.fill && el.fill !== "transparent") ? `fill="${svgEscape(el.fill)}"` : `fill="none"`;
+                const strokeAttr = el.stroke ? `stroke="${svgEscape(el.stroke)}" stroke-width="${el.strokeWidth || 1}"` : `stroke="none"`;
+                parts.push(`${gOpen}
+  <path d="${d}" ${fillAttr} ${strokeAttr}/>
+${gClose}`);
+            }
+        }
+
+        // Assemble the final SVG
+        return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="${pxW}px"
+     height="${pxH}px"
+     viewBox="0 0 ${pxW} ${pxH}">
+  <!-- Generated by QCIM Label SDK — mode: export_svg -->
+  <rect width="${pxW}" height="${pxH}" fill="${svgEscape(bg)}"/>
+${parts.join("\n")}
+</svg>`;
+    }
+
+    /**
+     * Trigger a browser download for a string blob.
+     */
+    function downloadTextFile(content, filename, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement("a");
+        a.href     = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }
+
+    /**
+     * Public utility: convert an array of markup objects to an array of SVG strings.
+     * Useful when you want to handle the SVGs yourself (upload to server, display
+     * in <img> tags, etc.) rather than triggering a download.
+     *
+     * @param {Array}   markups  - Array of markup objects from the API
+     * @returns {Promise<string[]>}  - Array of SVG strings (one per markup)
+     */
+    QCIMLabelSDK.markupsToSVG = async function (markups) {
+        if (!Array.isArray(markups)) throw new Error("markupsToSVG: markups must be an array");
+        const results = [];
+        for (const markup of markups) {
+            results.push(await renderMarkupToSVG(markup));
+        }
+        return results;
+    };
 
     async function printMarkup(markup) {
         const root = document.getElementById("printRoot");
