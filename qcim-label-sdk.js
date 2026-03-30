@@ -955,7 +955,16 @@
                 const rawLines = (el.text || "").split("\n");
                 const wrappedLines = [];
                 for (const raw of rawLines) wrapText(raw, maxWidth).forEach(l => wrappedLines.push(l));
-                wrappedLines.forEach((line, i) => ctx.fillText(line, 0, i * lineHeight));
+
+                // ✅ FIX: ctx.textAlign anchor must match the alignment.
+                // When textAlign="right", fillText x must be the RIGHT edge of the text box.
+                // When textAlign="center", fillText x must be the CENTER of the text box.
+                // When textAlign="left",  fillText x = 0 (start of box).
+                const textX = align === "right"  ? maxWidth
+                  : align === "center" ? maxWidth / 2
+                    : 0;
+
+                wrappedLines.forEach((line, i) => ctx.fillText(line, textX, i * lineHeight));
                 ctx.restore();
             }
 
