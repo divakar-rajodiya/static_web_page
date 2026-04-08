@@ -22,6 +22,7 @@
             --m2: #34d399;   /* Print Markups  – emerald */
             --m3: #fb923c;   /* PrintNode ZPL  – orange */
             --m4: #60a5fa;   /* PrintNode PDF  – blue */
+            --m5: #f472b6;   /* Export SVG     – pink */
 
             --radius: 10px;
             --mono: 'IBM Plex Mono', monospace;
@@ -504,6 +505,7 @@
         <a href="#method2" class="nav-link" data-m="2"><span class="nav-dot" style="background:var(--m2)"></span>2 : Print Markups</a>
         <a href="#method3" class="nav-link" data-m="3"><span class="nav-dot" style="background:var(--m3)"></span>3 : PrintNode ZPL</a>
         <a href="#method4" class="nav-link" data-m="4"><span class="nav-dot" style="background:var(--m4)"></span>4 : PrintNode PDF</a>
+        <a href="#method5" class="nav-link" data-m="5"><span class="nav-dot" style="background:var(--m5)"></span>5 : Export SVG</a>
 
         <span class="nav-section">Reference</span>
         <a href="#choosing"       class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Choosing a Method</a>
@@ -527,6 +529,7 @@
                 <a href="#method2" class="method-hero-card"><span class="dot" style="background:var(--m2)"></span>Print Markups</a>
                 <a href="#method3" class="method-hero-card"><span class="dot" style="background:var(--m3)"></span>PrintNode ZPL</a>
                 <a href="#method4" class="method-hero-card"><span class="dot" style="background:var(--m4)"></span>PrintNode PDF</a>
+                <a href="#method5" class="method-hero-card"><span class="dot" style="background:var(--m5)"></span>Export SVG</a>
             </div>
         </div>
 
@@ -567,7 +570,7 @@
             ══════════════════════════════════════════════ -->
             <section id="overview">
                 <h2>Methods Overview</h2>
-                <p>There are four ways to interact with label data through the API. Choose the method that fits your workflow.</p>
+                <p>There are four API endpoints and one client-side export method. Choose the option that fits your workflow.</p>
 
                 <div class="table-wrap">
                     <table>
@@ -577,7 +580,7 @@
                             <th>Method</th>
                             <th>What it Does</th>
                             <th>Best Use Case</th>
-                            <th>Requires Printer?</th>
+                            <th>Requires SDK?</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -593,21 +596,28 @@
                             <td><strong style="color:var(--m2)">Print Markups</strong></td>
                             <td>Fetches markup and renders it to the browser canvas + print dialog</td>
                             <td>Web applications, browser printing</td>
-                            <td>Browser printer</td>
+                            <td>Yes</td>
                         </tr>
                         <tr>
                             <td><span style="color:var(--m3);font-weight:700">3</span></td>
                             <td><strong style="color:var(--m3)">PrintNode ZPL</strong></td>
                             <td>Generates ZPL commands and sends directly to Zebra printer via PrintNode</td>
                             <td>Warehouse / thermal printing</td>
-                            <td>Yes - Zebra/ZPL</td>
+                            <td>No</td>
                         </tr>
                         <tr>
                             <td><span style="color:var(--m4);font-weight:700">4</span></td>
                             <td><strong style="color:var(--m4)">PrintNode PDF</strong></td>
                             <td>Renders a vector PDF server-side and sends to printer via PrintNode</td>
                             <td>Office / standard printers</td>
-                            <td>Yes - any printer</td>
+                            <td>No</td>
+                        </tr>
+                        <tr>
+                            <td><span style="color:var(--m5);font-weight:700">5</span></td>
+                            <td><strong style="color:var(--m5)">Export SVG</strong></td>
+                            <td>Fetches markup and converts each label into a self-contained SVG file</td>
+                            <td>Archiving, custom workflows, external print pipelines</td>
+                            <td>Yes</td>
                         </tr>
                         </tbody>
                     </table>
@@ -692,10 +702,10 @@
             ══════════════════════════════════════════════ -->
             <section id="setup">
                 <h2>SDK &amp; Files Setup</h2>
-                <p>Methods 1 and 2 (browser-based) use the Quandosol JavaScript SDK. Methods 3 and 4 (PrintNode) also use the SDK to trigger server-side printing.</p>
+                <p>The SDK is now only required for the two renderer-dependent flows: <strong>Method 2 (Print Markups)</strong> and <strong>Method 5 (Export SVG)</strong>. The other methods are plain API calls and can be used with direct <code>fetch()</code>, cURL, Postman, or your own backend.</p>
 
-                <h3>1. Include the SDK</h3>
-                <p>Load the SDK from Quandosol or host it yourself:</p>
+                <h3>1. Include the Renderer SDK</h3>
+                <p>Add this script tag only when you need browser printing or SVG export:</p>
                 <div class="code-wrap">
                     <pre>&lt;script src="https://app.quandosol.com/qcim-label-sdk.js"&gt;&lt;/script&gt;</pre>
                     <button class="copy-btn">Copy</button>
@@ -714,7 +724,7 @@
                 </div>
 
                 <h3>3. Create <code>print-label.html</code></h3>
-                <p>This file is required <strong>only for Method 2</strong> (Print Markups). It runs inside a hidden iframe and renders the label for the browser print dialog.</p>
+                <p>This file is required <strong>only for Method 2</strong>. It runs inside a hidden iframe and renders the label for the browser print dialog. Method 5 does not need this file.</p>
                 <div class="code-wrap">
           <pre>&lt;!DOCTYPE html&gt;
 &lt;html lang="en"&gt;
@@ -730,15 +740,25 @@
 &lt;body&gt;
   &lt;div id="printRoot"&gt;&lt;/div&gt;
   &lt;script src="https://unpkg.com/bwip-js/dist/bwip-js-min.js"&gt;&lt;/script&gt;
-  &lt;script src="./qcim-label-sdk.js"&gt;&lt;/script&gt;
+  &lt;script src="https://app.quandosol.com/qcim-label-sdk.js"&gt;&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;</pre>
                     <button class="copy-btn">Copy</button>
                 </div>
 
+                <h3>4. Direct API Flows Without the SDK</h3>
+                <p>Use the following paths without loading the SDK:</p>
+                <ul>
+                    <li><strong>Method 1</strong> -> <code>POST /api/custom-labels/fetch-markups</code></li>
+                    <li><strong>Method 3</strong> -> <code>POST /api/custom-labels/print-node</code></li>
+                    <li><strong>Method 4</strong> -> <code>POST /api/custom-labels/print-node-pdf</code></li>
+                </ul>
+
                 <h3>Example Files</h3>
                 <ul>
                     <li><strong>qcim-label-sdk.js</strong> - <a href="https://app.quandosol.com/qcim-label-sdk.js" target="_blank">https://app.quandosol.com/qcim-label-sdk.js</a></li>
+                    <li><strong>qcim-label-api-client.js</strong> - local demo helper for non-SDK methods</li>
+                    <li><strong>print-label.html</strong> - iframe renderer page for Method 2</li>
                     <li><strong>test_label.html</strong> - <a href="https://app.quandosol.com/test_label.html" target="_blank">https://app.quandosol.com/test_label.html</a></li>
                 </ul>
             </section>
@@ -768,7 +788,7 @@
                 <div class="method-body">
                     <p>This method calls the API and returns the fully resolved label markup as JSON - with all variables replaced. No rendering or printing is triggered. Use this to <strong>preview label data</strong>, build custom renderers, or inspect what the label contains before committing to print.</p>
 
-                    <p>When called via the SDK, the response is displayed in a <strong>built-in preview popup</strong> showing stage dimensions, element list, and a raw JSON view.</p>
+                    <p><strong>No SDK is required for this method.</strong> You can call it directly from your backend, browser, Postman, or any HTTP client.</p>
 
                     <h3>API Endpoint</h3>
                     <div class="code-wrap">
@@ -813,20 +833,30 @@
                         <button class="copy-btn">Copy</button>
                     </div>
 
-                    <h3>SDK Usage</h3>
+                    <h3>Direct JavaScript Usage</h3>
                     <div class="code-wrap">
-            <pre>QCIMLabelSDK.printLabel({
-  label_name: "Label A",
-  amount:     1,
-  apiData: {
-    IMEI:             "356938035643809",
-    Model_No:         "iPhone 13",
-    Serial_No:        "SN-A12345",
-    GT_Battery_Ratio: "92%",
-    Carriers:         "Unlocked"
+            <pre>const response = await fetch("https://app.quandosol.com/api/custom-labels/fetch-markups", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-API-KEY": "YOUR_API_KEY",
+    "X-API-SECRET": "YOUR_API_TOKEN"
   },
-  mode: "fetch_markups"   // <- this mode
-});</pre>
+  body: JSON.stringify({
+    label_name: "Label A",
+    amount: 1,
+    apiData: {
+      IMEI: "356938035643809",
+      Model_No: "iPhone 13",
+      Serial_No: "SN-A12345",
+      GT_Battery_Ratio: "92%",
+      Carriers: "Unlocked"
+    }
+  })
+});
+
+const markups = await response.json();
+console.log(markups);</pre>
                         <button class="copy-btn">Copy</button>
                     </div>
 
@@ -904,15 +934,13 @@
 
                     <h3>Flow</h3>
                     <div class="flow">
-                        <div class="flow-step">Client calls SDK</div>
+                        <div class="flow-step">Client calls API</div>
                         <div class="flow-arrow">-></div>
                         <div class="flow-step">POST /fetch-markups</div>
                         <div class="flow-arrow">-></div>
                         <div class="flow-step">Variables resolved</div>
                         <div class="flow-arrow">-></div>
                         <div class="flow-step">Markup JSON returned</div>
-                        <div class="flow-arrow">-></div>
-                        <div class="flow-step">Preview popup shown</div>
                     </div>
 
                     <div class="callout tip">
@@ -1035,7 +1063,7 @@
                     <ul>
                         <li>PrintNode client installed and running on the machine connected to the printer</li>
                         <li>Printer registered in PrintNode dashboard - retrieve the <code>printer_id</code></li>
-                        <li>SDK loaded and configured</li>
+                        <li>No SDK required</li>
                     </ul>
 
                     <h3>API Endpoint</h3>
@@ -1070,20 +1098,27 @@
                         <button class="copy-btn">Copy</button>
                     </div>
 
-                    <h3>SDK Usage</h3>
+                    <h3>Direct JavaScript Usage</h3>
                     <div class="code-wrap">
-            <pre>QCIMLabelSDK.printLabel({
-  label_name: "Label A",
-  amount:     1,
-  apiData: {
-    IMEI:             "356938035643809",
-    Model_No:         "iPhone 13",
-    Serial_No:        "SN-A12345",
-    GT_Battery_Ratio: "92%",
-    Carriers:         "Unlocked"
+            <pre>await fetch("https://app.quandosol.com/api/custom-labels/print-node", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-API-KEY": "YOUR_API_KEY",
+    "X-API-SECRET": "YOUR_API_TOKEN"
   },
-  mode:       "printNodeZpl",   // <- this mode
-  printer_id: 75208784
+  body: JSON.stringify({
+    label_name: "Label A",
+    amount: 1,
+    printer_id: 75208784,
+    apiData: {
+      IMEI: "356938035643809",
+      Model_No: "iPhone 13",
+      Serial_No: "SN-A12345",
+      GT_Battery_Ratio: "92%",
+      Carriers: "Unlocked"
+    }
+  })
 });</pre>
                         <button class="copy-btn">Copy</button>
                     </div>
@@ -1151,7 +1186,7 @@
                     <ul>
                         <li>PrintNode client installed and running on the machine connected to the printer</li>
                         <li>Printer registered in PrintNode dashboard - retrieve the <code>printer_id</code></li>
-                        <li>SDK loaded and configured</li>
+                        <li>No SDK required</li>
                     </ul>
 
                     <h3>API Endpoint</h3>
@@ -1185,20 +1220,27 @@
                         <button class="copy-btn">Copy</button>
                     </div>
 
-                    <h3>SDK Usage</h3>
+                    <h3>Direct JavaScript Usage</h3>
                     <div class="code-wrap">
-            <pre>QCIMLabelSDK.printLabel({
-  label_name: "Label A",
-  amount:     1,
-  apiData: {
-    IMEI:             "356938035643809",
-    Model_No:         "iPhone 13",
-    Serial_No:        "SN-A12345",
-    GT_Battery_Ratio: "92%",
-    Carriers:         "Unlocked"
+            <pre>await fetch("https://app.quandosol.com/api/custom-labels/print-node-pdf", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-API-KEY": "YOUR_API_KEY",
+    "X-API-SECRET": "YOUR_API_TOKEN"
   },
-  mode:       "printNodeImage",   // <- this mode
-  printer_id: 75236019
+  body: JSON.stringify({
+    label_name: "Label A",
+    amount: 1,
+    printer_id: 75236019,
+    apiData: {
+      IMEI: "356938035643809",
+      Model_No: "iPhone 13",
+      Serial_No: "SN-A12345",
+      GT_Battery_Ratio: "92%",
+      Carriers: "Unlocked"
+    }
+  })
 });</pre>
                         <button class="copy-btn">Copy</button>
                     </div>
@@ -1240,6 +1282,76 @@
             </div>
 
             <!-- ══════════════════════════════════════════════
+                 METHOD 5 - EXPORT SVG
+            ══════════════════════════════════════════════ -->
+            <div class="method-section" id="method5" style="border-color: rgba(244,114,182,.35); margin-top: 28px;">
+                <div class="method-header" style="background: rgba(244,114,182,.08);">
+                    <div class="method-number" style="background:rgba(244,114,182,.15);color:var(--m5);">5</div>
+                    <div class="method-header-text">
+                        <h3 style="color:var(--m5);">Export SVG</h3>
+                        <p>Fetch markup, render vector SVG in the browser, then download or handle it yourself</p>
+                    </div>
+                    <span class="method-badge" style="color:var(--m5);border-color:rgba(244,114,182,.35);background:rgba(244,114,182,.1);">Browser SDK</span>
+                </div>
+
+                <div class="method-body">
+                    <p>This method uses the hosted SDK to fetch the markup JSON and convert each label into a <strong>self-contained SVG</strong>. The default behavior downloads the SVG file. You can also intercept the SVG string with a callback and upload it, preview it, or pass it to another system.</p>
+
+                    <h3>Prerequisites</h3>
+                    <ul>
+                        <li>SDK loaded and configured (see <a href="#setup">SDK Setup</a>)</li>
+                        <li>No <code>print-label.html</code> file required</li>
+                    </ul>
+
+                    <h3>SDK Usage</h3>
+                    <div class="code-wrap">
+            <pre>&lt;script src="https://app.quandosol.com/qcim-label-sdk.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  QCIMLabelSDK.setConfig({
+    apiBaseUrl: "https://app.quandosol.com/api",
+    api_key: "YOUR_API_KEY",
+    api_token: "YOUR_API_TOKEN",
+    debug: true
+  });
+
+  QCIMLabelSDK.printLabel({
+    label_name: "Label A",
+    amount: 1,
+    apiData: {
+      IMEI: "356938035643809",
+      Model_No: "iPhone 13",
+      Serial_No: "SN-A12345",
+      GT_Battery_Ratio: "92%",
+      Carriers: "Unlocked"
+    },
+    mode: "export_svg"
+  });
+&lt;/script&gt;</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+
+                    <h3>Handle SVG Yourself</h3>
+                    <div class="code-wrap">
+            <pre>QCIMLabelSDK.printLabel({
+  label_name: "Label A",
+  amount: 1,
+  apiData: { ... },
+  mode: "export_svg",
+  onSVG: (svgString, index, total) => {
+    console.log(`SVG ${index + 1} of ${total}`);
+    console.log(svgString);
+  }
+});</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+
+                    <div class="callout tip">
+                        <p>Use this when you want a portable vector output from the label engine but do not want to send it directly to PrintNode.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════════
                  SECTION: Choosing a Method
             ══════════════════════════════════════════════ -->
             <section id="choosing">
@@ -1257,6 +1369,7 @@
                         <tr><td>Warehouse automation / background printing</td><td><strong style="color:var(--m3)">3 - PrintNode ZPL</strong></td></tr>
                         <tr><td>Standard office or laser printer</td><td><strong style="color:var(--m4)">4 - PrintNode PDF</strong></td></tr>
                         <tr><td>Complex graphics or high-quality output</td><td><strong style="color:var(--m4)">4 - PrintNode PDF</strong></td></tr>
+                        <tr><td>Download label output for archiving or another print pipeline</td><td><strong style="color:var(--m5)">5 - Export SVG</strong></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1267,7 +1380,7 @@
             ══════════════════════════════════════════════ -->
             <section id="printer-setup">
                 <h2>Printer Setup Guide</h2>
-                <p>Required for Methods 3 and 4 (PrintNode). Methods 1 and 2 do not need this setup.</p>
+                <p>Required for Methods 3 and 4 (PrintNode). Methods 1, 2, and 5 do not need this setup.</p>
 
                 <ol class="steps">
                     <li>Install the PrintNode client from <a href="https://www.printnode.com/download" target="_blank">https://www.printnode.com/download</a></li>
@@ -1315,7 +1428,7 @@
                     <li>For PrintNode methods: confirm the <code>printer_id</code> is correct and the printer is online in the PrintNode dashboard</li>
                     <li>Confirm the PrintNode client is installed and running on the machine connected to the printer</li>
                     <li>Use <strong>Method 1 (Fetch Markups)</strong> to verify variable substitution is working correctly before attempting any print method</li>
-                    <li>Enable <code>debug: true</code> in the SDK config to see detailed console logs</li>
+                    <li>For Methods 2 and 5, enable <code>debug: true</code> in the SDK config to see detailed console logs</li>
                 </ul>
             </section>
 
@@ -1327,6 +1440,7 @@
                 <ul>
                     <li><strong>Never expose API credentials in frontend code.</strong> In production, proxy all API calls through your own backend.</li>
                     <li>Use <strong>Method 1 (Fetch Markups)</strong> during development to validate your variable data before wiring up any print method.</li>
+                    <li>Load the hosted SDK only when you need <strong>Method 2</strong> or <strong>Method 5</strong>.</li>
                     <li>Cache label template metadata where possible to reduce repeated API calls.</li>
                     <li>Validate all <code>apiData</code> values on the client side before sending the request.</li>
                     <li>Store your API token securely immediately after generation - it is shown only once.</li>
@@ -1334,7 +1448,7 @@
 
                 <div class="callout success" style="margin-top:28px;">
                     <span class="callout-icon"></span>
-                    <p>Quandosol enables flexible label printing from any system - use <strong>Fetch Markups</strong> to preview, <strong>Print Markups</strong> for browser printing, and <strong>PrintNode ZPL/PDF</strong> for direct server-side delivery to any printer.</p>
+                    <p>Quandosol enables flexible label workflows from any system - use <strong>Fetch Markups</strong> to preview, <strong>Print Markups</strong> for browser printing, <strong>PrintNode ZPL/PDF</strong> for direct printer delivery, and <strong>Export SVG</strong> when you need vector output from the browser.</p>
                 </div>
             </section>
 

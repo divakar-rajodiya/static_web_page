@@ -65,6 +65,59 @@
             background: #7c3aed;
         }
         .btn-export-svg:hover { background: #6d28d9; }
+
+        .json-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 24px;
+        }
+
+        .json-modal-card {
+            width: min(900px, 100%);
+            max-height: 85vh;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .json-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .json-modal-header h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .json-modal-body {
+            padding: 0;
+            overflow: auto;
+        }
+
+        .json-modal-body pre {
+            margin: 0;
+            padding: 18px;
+            background: #111827;
+            color: #e5e7eb;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .json-modal-close {
+            background: #111827;
+        }
     </style>
 </head>
 <body>
@@ -275,28 +328,33 @@
     </tbody>
 </table>
 
-<!-- ONLY ONE SDK FILE -->
+<!-- Renderer SDK: only needed for Print Markups + Export SVG -->
 <script src="./qcim-label-sdk.js"></script>
+<!-- Direct API helper: used for Fetch Markups + PrintNode methods -->
+<script src="./qcim-label-api-client.js"></script>
 
 <script>
-  // CUSTOMER CONFIGURATION
-  // local
-  QCIMLabelSDK.setConfig({
+  //local
+  const QCIM_CONFIG = {
     apiBaseUrl: "http://qcim-backend.test/api",
     api_key: "yqjHWY8M1MBUdF82cq2EoH4lsuBg8Xwa",
     api_token: "rvcgcHYJzOz2wzsVKRAQP8XgR3AMth5e4RBtS5y8BOUhxDiFQVlvjI6gv6LYcUb4",
     printPageUrl: "./print-label.html",
     debug: true,
-  });
+  };
 
-  // production
-  // QCIMLabelSDK.setConfig({
-  //   apiBaseUrl: "https://api.beta.quandosol.com/api",
-  //   api_key: "splsTpbkLDzYREpXxpTLGA20V7szpyda",
-  //   api_token: "t06utpbYol5mVgnbYp89Ym5qId4IuFKFrK6KDfkCZm9Mn0N0v5zqvdcPDJOs2yY8",
-  //   printPageUrl: "./print-label.html",
-  //   debug: true,
-  // });
+  //beta
+  // const QCIM_CONFIG = {
+  //     apiBaseUrl: "https://api.beta.quandosol.com/api",
+  //     api_key: "splsTpbkLDzYREpXxpTLGA20V7szpyda",
+  //     api_token: "t06utpbYol5mVgnbYp89Ym5qId4IuFKFrK6KDfkCZm9Mn0N0v5zqvdcPDJOs2yY8",
+  //     printPageUrl: "./print-label.html",
+  //     debug: true,
+  // };
+
+  // CUSTOMER CONFIGURATION
+  QCIMLabelSDK.setConfig(QCIM_CONFIG);
+  QCIMLabelAPI.setConfig(QCIM_CONFIG);
 
   /** Helper: extract row data from a button's <tr> */
   function getRowData(button) {
@@ -315,15 +373,58 @@
     };
   }
 
-  // MODE 1 — Fetch markups → show in preview popup
-  function fetchMarkups(button) {
-    const data = getRowData(button);
-    QCIMLabelSDK.printLabel({
-      label_name: data.label_name,
-      amount: 1,
-      apiData: data,
-      mode: "fetch_markups",
+  function showMarkupPreview(title, data) {
+    const existing = document.querySelector(".json-modal");
+    if (existing) existing.remove();
+
+    const overlay = document.createElement("div");
+    overlay.className = "json-modal";
+    overlay.innerHTML = `
+      <div class="json-modal-card">
+        <div class="json-modal-header">
+          <h3>${title}</h3>
+          <button class="json-modal-close">Close</button>
+        </div>
+        <div class="json-modal-body">
+          <pre>${escapeHtml(JSON.stringify(data, null, 2))}</pre>
+        </div>
+      </div>
+    `;
+
+    function closeModal() {
+      overlay.remove();
+    }
+
+    overlay.querySelector(".json-modal-close").addEventListener("click", closeModal);
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) closeModal();
     });
+
+    document.body.appendChild(overlay);
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // MODE 1 — Fetch markups → show in preview popup
+  async function fetchMarkups(button) {
+    const data = getRowData(button);
+    try {
+      const markups = await QCIMLabelAPI.fetchMarkups({
+        label_name: data.label_name,
+        amount: 1,
+        apiData: data,
+      });
+      console.log("Fetch markups response:", markups);
+      showMarkupPreview(`Fetch Markups: ${data.label_name}`, markups);
+    } catch (error) {
+      console.error(error);
+      alert(`❌ ${error.message}`);
+    }
   }
 
   // MODE 2 — Fetch markups → render canvas → browser print dialog
@@ -338,52 +439,47 @@
   }
 
   // MODE 3 — Send ZPL to printer via PrintNode
-  function printNodeLabel(button) {
-    alert("This API is disabled.");
-    return ;
+  async function printNodeLabel(button) {
     const data = getRowData(button);
-    QCIMLabelSDK.printLabel({
-      label_name: data.label_name,
-      amount: 1,
-      apiData: data,
-      mode: "printNodeZpl",
-      //local
-      printer_id: 75236019, // ZDesigner ZD500R-203dpi ZPL – 75208784, printer id  Brother HL-5470DW series – 75208780, 75236019 divakar's account key, vinc's zpl printer 75208784
-      //production
-      // printer_id: 75208784
-    });
+    try {
+      const response = await QCIMLabelAPI.printNodeZpl({
+        label_name: data.label_name,
+        amount: 1,
+        apiData: data,
+        //local
+        printer_id: 75236019, // ZDesigner ZD500R-203dpi ZPL – 75208784, printer id  Brother HL-5470DW series – 75208780, 75236019 divakar's account key, vinc's zpl printer 75208784
+        //production
+        // printer_id: 75208784
+      });
+      console.log("PrintNode ZPL response:", response);
+      alert("✅ Sent to printer successfully (ZPL)");
+    } catch (error) {
+      console.error(error);
+      alert(`❌ ${error.message}`);
+    }
   }
 
   // MODE 4 — Send PDF/Image to printer via PrintNode
-  function printNodePdf(button) {
-    alert("This API is disabled.");
-    return ;
+  async function printNodePdf(button) {
     const data = getRowData(button);
-    QCIMLabelSDK.printLabel({
-      label_name: data.label_name,
-      amount: 1,
-      apiData: data,
-      mode: "printNodeImage",
-      //local
-      printer_id: 75236019, // ZDesigner ZD500R-203dpi ZPL – 75208784, printer id  Brother HL-5470DW series – 75208780, 75236019 divakar's account key, vinc's zpl printer 75208784
-      //production
-      // printer_id: 75208784
-    });
+    try {
+      const response = await QCIMLabelAPI.printNodePdf({
+        label_name: data.label_name,
+        amount: 1,
+        apiData: data,
+        //local
+        printer_id: 75236019, // ZDesigner ZD500R-203dpi ZPL – 75208784, printer id  Brother HL-5470DW series – 75208780, 75236019 divakar's account key, vinc's zpl printer 75208784
+        //production
+        // printer_id: 75208784
+      });
+      console.log("PrintNode PDF response:", response);
+      alert("✅ Sent to printer successfully (PDF)");
+    } catch (error) {
+      console.error(error);
+      alert(`❌ ${error.message}`);
+    }
   }
 
-  // MODE 5 — Export SVG
-  // By default, the SDK auto-downloads the SVG file.
-  // If you want to handle the SVG yourself (e.g. upload it, display it, etc.)
-  // pass an onSVG callback instead:
-  //
-  //   onSVG: (svgString, index, total) => {
-  //     const blob = new Blob([svgString], { type: "image/svg+xml" });
-  //     const url  = URL.createObjectURL(blob);
-  //     window.open(url);            // open in new tab for preview
-  //     // — or —
-  //     document.getElementById("myPreview").src = url; // show inline
-  //   }
-  //
   function exportSVG(button) {
     const data = getRowData(button);
     QCIMLabelSDK.printLabel({
@@ -391,18 +487,6 @@
       amount: 1,
       apiData: data,
       mode: "export_svg",
-
-      // ── Option A (default): auto-download the file ───────────────────
-      // Just omit onSVG and the SDK will trigger a browser download.
-
-      // ── Option B: handle the SVG string yourself ─────────────────────
-      // Uncomment the block below to open a preview in a new tab instead:
-      //
-      // onSVG: (svgString, index, total) => {
-      //   const blob = new Blob([svgString], { type: "image/svg+xml" });
-      //   const url  = URL.createObjectURL(blob);
-      //   window.open(url, "_blank");
-      // },
     });
   }
 </script>
