@@ -329,13 +329,13 @@
 </table>
 
 <!-- Renderer SDK: only needed for Print Markups + Export SVG -->
-<script src="./qcim-label-sdk.js"></script>
+<script src="./qpro-label-sdk.js"></script>
 <!-- Direct API helper: used for Fetch Markups + PrintNode methods -->
-<script src="./qcim-label-api-client.js"></script>
+<script src="./qpro-label-api-client.js"></script>
 
 <script>
   //local
-  const QCIM_CONFIG = {
+  const QPRO_CONFIG = {
     apiBaseUrl: "http://qcim-backend.test/api",
     api_key: "yqjHWY8M1MBUdF82cq2EoH4lsuBg8Xwa",
     api_token: "rvcgcHYJzOz2wzsVKRAQP8XgR3AMth5e4RBtS5y8BOUhxDiFQVlvjI6gv6LYcUb4",
@@ -344,7 +344,7 @@
   };
 
   //beta
-  // const QCIM_CONFIG = {
+  // const QPRO_CONFIG = {
   //     apiBaseUrl: "https://api.beta.quandosol.com/api",
   //     api_key: "splsTpbkLDzYREpXxpTLGA20V7szpyda",
   //     api_token: "t06utpbYol5mVgnbYp89Ym5qId4IuFKFrK6KDfkCZm9Mn0N0v5zqvdcPDJOs2yY8",
@@ -353,8 +353,8 @@
   // };
 
   // CUSTOMER CONFIGURATION
-  QCIMLabelSDK.setConfig(QCIM_CONFIG);
-  QCIMLabelAPI.setConfig(QCIM_CONFIG);
+  QPROLabelSDK.setConfig(QPRO_CONFIG);
+  QPROLabelAPI.setConfig(QPRO_CONFIG);
 
   /** Helper: extract row data from a button's <tr> */
   function getRowData(button) {
@@ -414,7 +414,7 @@
   async function fetchMarkups(button) {
     const data = getRowData(button);
     try {
-      const markups = await QCIMLabelAPI.fetchMarkups({
+      const markups = await QPROLabelAPI.fetchMarkups({
         label_name: data.label_name,
         amount: 1,
         apiData: data,
@@ -430,7 +430,7 @@
   // MODE 2 — Fetch markups → render canvas → browser print dialog
   function printLabel(button) {
     const data = getRowData(button);
-    QCIMLabelSDK.printLabel({
+    QPROLabelSDK.printLabel({
       label_name: data.label_name,
       amount: 1,
       apiData: data,
@@ -442,7 +442,7 @@
   async function printNodeLabel(button) {
     const data = getRowData(button);
     try {
-      const response = await QCIMLabelAPI.printNodeZpl({
+      const response = await QPROLabelAPI.printNodeZpl({
         label_name: data.label_name,
         amount: 1,
         apiData: data,
@@ -463,7 +463,7 @@
   async function printNodePdf(button) {
     const data = getRowData(button);
     try {
-      const response = await QCIMLabelAPI.printNodePdf({
+      const response = await QPROLabelAPI.printNodePdf({
         label_name: data.label_name,
         amount: 1,
         apiData: data,
@@ -482,7 +482,7 @@
 
   function exportSVG(button) {
     const data = getRowData(button);
-    QCIMLabelSDK.printLabel({
+    QPROLabelSDK.printLabel({
       label_name: data.label_name,
       amount: 1,
       apiData: data,

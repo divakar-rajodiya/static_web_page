@@ -1,5 +1,5 @@
 /**
- * QCIM Label SDK
+ * QPRO Label SDK
  *
  * Purpose:
  *  - print_markups : fetch markup + render in hidden iframe + open browser print dialog
@@ -7,17 +7,17 @@
  *
  * This SDK is intentionally focused on the renderer-dependent flows only.
  * Direct API-only flows such as fetch_markups / PrintNode ZPL / PrintNode PDF
- * should use qcim-label-api-client.js or plain fetch() calls instead.
+ * should use qpro-label-api-client.js or plain fetch() calls instead.
  */
 
 (function (global) {
-    const QCIMLabelSDK = {};
+    const QPROLabelSDK = {};
     const DPI = 96;
     const BWIP_CDN = "https://unpkg.com/bwip-js/dist/bwip-js-min.js";
 
     let bwipLoadPromise = null;
 
-    QCIMLabelSDK.config = {
+    QPROLabelSDK.config = {
         apiBaseUrl: "",
         api_key: "",
         api_token: "",
@@ -25,24 +25,24 @@
         debug: false,
     };
 
-    QCIMLabelSDK.setConfig = function (options = {}) {
-        QCIMLabelSDK.config = {
-            ...QCIMLabelSDK.config,
+    QPROLabelSDK.setConfig = function (options = {}) {
+        QPROLabelSDK.config = {
+            ...QPROLabelSDK.config,
             ...options,
         };
     };
 
     function log(...args) {
-        if (QCIMLabelSDK.config.debug) {
-            console.log("[QCIM LABEL SDK]", ...args);
+        if (QPROLabelSDK.config.debug) {
+            console.log("[QPRO LABEL SDK]", ...args);
         }
     }
 
     function validateCommonPayload({ label_name, amount, apiData }) {
-        if (!QCIMLabelSDK.config.apiBaseUrl) {
+        if (!QPROLabelSDK.config.apiBaseUrl) {
             throw new Error("apiBaseUrl is missing in config.");
         }
-        if (!QCIMLabelSDK.config.api_key || !QCIMLabelSDK.config.api_token) {
+        if (!QPROLabelSDK.config.api_key || !QPROLabelSDK.config.api_token) {
             throw new Error("api key/api token missing in config.");
         }
         if (!label_name) {
@@ -57,7 +57,7 @@
     }
 
     async function requestJson(endpoint, payload) {
-        const { apiBaseUrl, api_key, api_token } = QCIMLabelSDK.config;
+        const { apiBaseUrl, api_key, api_token } = QPROLabelSDK.config;
         const url = `${apiBaseUrl}${endpoint}`;
 
         log("Calling API:", url, payload);
@@ -98,11 +98,11 @@
     }
 
     function getPrintIframe() {
-        let iframe = document.getElementById("qcim_print_iframe");
+        let iframe = document.getElementById("qpro_print_iframe");
 
         if (!iframe) {
             iframe = document.createElement("iframe");
-            iframe.id = "qcim_print_iframe";
+            iframe.id = "qpro_print_iframe";
             iframe.style.position = "fixed";
             iframe.style.width = "0";
             iframe.style.height = "0";
@@ -113,7 +113,7 @@
         return iframe;
     }
 
-    QCIMLabelSDK.printLabel = async function ({
+    QPROLabelSDK.printLabel = async function ({
         label_name,
         amount = 1,
         apiData = {},
@@ -134,7 +134,7 @@
                     iframe.contentWindow.renderAndPrint(markup);
                 };
 
-                iframe.src = `${QCIMLabelSDK.config.printPageUrl}?${Date.now()}`;
+                iframe.src = `${QPROLabelSDK.config.printPageUrl}?${Date.now()}`;
                 return markups;
             }
 
@@ -160,7 +160,7 @@
 
             throw new Error('Unknown mode. Valid modes: "print_markups", "export_svg"');
         } catch (err) {
-            console.error("[QCIM LABEL SDK ERROR]", err);
+            console.error("[QPRO LABEL SDK ERROR]", err);
             alert(`❌ ${err.message}`);
             throw err;
         }
@@ -294,7 +294,7 @@
 
             return { type: "png", data: canvas.toDataURL("image/png") };
         } catch (error) {
-            console.error("[QCIM LABEL SDK] SVG barcode generation failed:", format, text, error);
+            console.error("[QPRO LABEL SDK] SVG barcode generation failed:", format, text, error);
             return null;
         }
     }
@@ -337,7 +337,7 @@
                 img.src = canvas.toDataURL("image/png");
             });
         } catch (error) {
-            console.error("[QCIM LABEL SDK] Barcode generation failed:", format, error);
+            console.error("[QPRO LABEL SDK] Barcode generation failed:", format, error);
             return null;
         }
     }
@@ -969,7 +969,7 @@ ${parts.join("\n")}
         setTimeout(() => URL.revokeObjectURL(url), 5000);
     }
 
-    QCIMLabelSDK.markupsToSVG = async function (markups) {
+    QPROLabelSDK.markupsToSVG = async function (markups) {
         if (!Array.isArray(markups)) {
             throw new Error("markupsToSVG: markups must be an array");
         }
@@ -1004,5 +1004,5 @@ ${parts.join("\n")}
         await printMarkup(markup);
     };
 
-    global.QCIMLabelSDK = QCIMLabelSDK;
+    global.QPROLabelSDK = QPROLabelSDK;
 })(window);

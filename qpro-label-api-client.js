@@ -1,5 +1,5 @@
 /**
- * QCIM Label API Client
+ * QPRO Label API Client
  *
  * Use this file for direct API flows that do not need the renderer SDK:
  *  - fetch_markups
@@ -8,33 +8,33 @@
  */
 
 (function (global) {
-    const QCIMLabelAPI = {};
+    const QPROLabelAPI = {};
 
-    QCIMLabelAPI.config = {
+    QPROLabelAPI.config = {
         apiBaseUrl: "",
         api_key: "",
         api_token: "",
         debug: false,
     };
 
-    QCIMLabelAPI.setConfig = function (options = {}) {
-        QCIMLabelAPI.config = {
-            ...QCIMLabelAPI.config,
+    QPROLabelAPI.setConfig = function (options = {}) {
+        QPROLabelAPI.config = {
+            ...QPROLabelAPI.config,
             ...options,
         };
     };
 
     function log(...args) {
-        if (QCIMLabelAPI.config.debug) {
-            console.log("[QCIM LABEL API]", ...args);
+        if (QPROLabelAPI.config.debug) {
+            console.log("[QPRO LABEL API]", ...args);
         }
     }
 
     function validateCommonPayload({ label_name, amount, apiData }) {
-        if (!QCIMLabelAPI.config.apiBaseUrl) {
+        if (!QPROLabelAPI.config.apiBaseUrl) {
             throw new Error("apiBaseUrl is missing in config.");
         }
-        if (!QCIMLabelAPI.config.api_key || !QCIMLabelAPI.config.api_token) {
+        if (!QPROLabelAPI.config.api_key || !QPROLabelAPI.config.api_token) {
             throw new Error("api key/api token missing in config.");
         }
         if (!label_name) {
@@ -49,7 +49,7 @@
     }
 
     async function requestJson(endpoint, payload) {
-        const { apiBaseUrl, api_key, api_token } = QCIMLabelAPI.config;
+        const { apiBaseUrl, api_key, api_token } = QPROLabelAPI.config;
         const url = `${apiBaseUrl}${endpoint}`;
 
         log("Calling API:", url, payload);
@@ -73,7 +73,7 @@
         return data;
     }
 
-    QCIMLabelAPI.fetchMarkups = async function ({
+    QPROLabelAPI.fetchMarkups = async function ({
         label_name,
         amount = 1,
         apiData = {},
@@ -93,7 +93,7 @@
         return data;
     };
 
-    QCIMLabelAPI.printNodeZpl = async function ({
+    QPROLabelAPI.printNodeZpl = async function ({
         label_name,
         amount = 1,
         apiData = {},
@@ -113,7 +113,7 @@
         });
     };
 
-    QCIMLabelAPI.printNodePdf = async function ({
+    QPROLabelAPI.printNodePdf = async function ({
         label_name,
         amount = 1,
         apiData = {},
@@ -133,5 +133,5 @@
         });
     };
 
-    global.QCIMLabelAPI = QCIMLabelAPI;
+    global.QPROLabelAPI = QPROLabelAPI;
 })(window);

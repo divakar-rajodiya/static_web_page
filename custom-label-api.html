@@ -707,13 +707,13 @@
                 <h3>1. Include the Renderer SDK</h3>
                 <p>Add this script tag only when you need browser printing or SVG export:</p>
                 <div class="code-wrap">
-                    <pre>&lt;script src="https://app.quandosol.com/qcim-label-sdk.js"&gt;&lt;/script&gt;</pre>
+                    <pre>&lt;script src="https://app.quandosol.com/qpro-label-sdk.js"&gt;&lt;/script&gt;</pre>
                     <button class="copy-btn">Copy</button>
                 </div>
 
                 <h3>2. Configure the SDK</h3>
                 <div class="code-wrap">
-          <pre>QCIMLabelSDK.setConfig({
+          <pre>QPROLabelSDK.setConfig({
   apiBaseUrl:   "https://app.quandosol.com/api",
   api_key:      "YOUR_API_KEY",
   api_token:    "YOUR_API_TOKEN",
@@ -740,7 +740,7 @@
 &lt;body&gt;
   &lt;div id="printRoot"&gt;&lt;/div&gt;
   &lt;script src="https://unpkg.com/bwip-js/dist/bwip-js-min.js"&gt;&lt;/script&gt;
-  &lt;script src="https://app.quandosol.com/qcim-label-sdk.js"&gt;&lt;/script&gt;
+  &lt;script src="https://app.quandosol.com/qpro-label-sdk.js"&gt;&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;</pre>
                     <button class="copy-btn">Copy</button>
@@ -756,8 +756,8 @@
 
                 <h3>Example Files</h3>
                 <ul>
-                    <li><strong>qcim-label-sdk.js</strong> - <a href="https://app.quandosol.com/qcim-label-sdk.js" target="_blank">https://app.quandosol.com/qcim-label-sdk.js</a></li>
-                    <li><strong>qcim-label-api-client.js</strong> - local demo helper for non-SDK methods</li>
+                    <li><strong>qpro-label-sdk.js</strong> - <a href="https://app.quandosol.com/qpro-label-sdk.js" target="_blank">https://app.quandosol.com/qpro-label-sdk.js</a></li>
+                    <li><strong>qpro-label-api-client.js</strong> - local demo helper for non-SDK methods</li>
                     <li><strong>print-label.html</strong> - iframe renderer page for Method 2</li>
                     <li><strong>test_label.html</strong> - <a href="https://app.quandosol.com/test_label.html" target="_blank">https://app.quandosol.com/test_label.html</a></li>
                 </ul>
@@ -892,7 +892,7 @@ console.log(markups);</pre>
   const url = `${API_BASE_URL}/custom-labels/fetch-markups`;
 
   console.log("%c-----------------------------------------", "color:#6366f1");
-  console.log("%cQCIM fetch_markups Debug", "color:#6366f1;font-size:14px;font-weight:bold");
+  console.log("%cQPRO fetch_markups Debug", "color:#6366f1;font-size:14px;font-weight:bold");
   console.log("%c-----------------------------------------", "color:#6366f1");
   console.log(`%c Endpoint -> %c${url}`, "color:#9ca3af", "color:#f59e0b;font-weight:bold");
   console.log("%c Payload  ->", "color:#9ca3af", { label_name: LABEL_NAME, amount: 1, apiData: API_DATA });
@@ -998,7 +998,7 @@ console.log(markups);</pre>
 
                     <h3>SDK Usage</h3>
                     <div class="code-wrap">
-            <pre>QCIMLabelSDK.printLabel({
+            <pre>QPROLabelSDK.printLabel({
   label_name: "Label A",
   amount:     1,
   apiData: {
@@ -1305,16 +1305,16 @@ console.log(markups);</pre>
 
                     <h3>SDK Usage</h3>
                     <div class="code-wrap">
-            <pre>&lt;script src="https://app.quandosol.com/qcim-label-sdk.js"&gt;&lt;/script&gt;
+            <pre>&lt;script src="https://app.quandosol.com/qpro-label-sdk.js"&gt;&lt;/script&gt;
 &lt;script&gt;
-  QCIMLabelSDK.setConfig({
+  QPROLabelSDK.setConfig({
     apiBaseUrl: "https://app.quandosol.com/api",
     api_key: "YOUR_API_KEY",
     api_token: "YOUR_API_TOKEN",
     debug: true
   });
 
-  QCIMLabelSDK.printLabel({
+  QPROLabelSDK.printLabel({
     label_name: "Label A",
     amount: 1,
     apiData: {
@@ -1332,7 +1332,7 @@ console.log(markups);</pre>
 
                     <h3>Handle SVG Yourself</h3>
                     <div class="code-wrap">
-            <pre>QCIMLabelSDK.printLabel({
+            <pre>QPROLabelSDK.printLabel({
   label_name: "Label A",
   amount: 1,
   apiData: { ... },
