@@ -426,7 +426,7 @@ function renderHeader(string $title, ?array $case = null): void
     <div class="shell">
         <header class="topbar">
             <div>
-                <a class="brand" href="index.php">QCIM Demo App</a>
+                <a class="brand" href="index.php">Qpro Demo App</a>
                 <?php if ($case): ?>
                     <p class="subtitle"><?= e($case['title']) ?> workspace</p>
                 <?php else: ?>
@@ -461,10 +461,10 @@ function renderFooter(): void
             apiKey: <?= $apiKey ?>,
             apiSecret: <?= $apiSecret ?>,
             labels: <?= $qproLabels ?>,
-            printPageUrl: "print-label.html"
+            printPageUrl: "../print-label.html"
         };
     </script>
-    <script src="qpro-label-sdk.js"></script>
+    <script src="../qpro-label-sdk.js"></script>
     <script src="assets/app.js"></script>
     </body>
     </html>

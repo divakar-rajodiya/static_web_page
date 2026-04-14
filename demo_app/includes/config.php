@@ -8,35 +8,35 @@ return [
         'demo_password' => 'password',
     ],
 //   local
-    'database' => [
-        'host' => '127.0.0.1',
-        'port' => 3306,
-        'database' => 'quandosol_demo',
-        'username' => 'root',
-        'password' => '',
-        'charset' => 'utf8mb4',
-    ],
-//   production
 //    'database' => [
 //        'host' => '127.0.0.1',
 //        'port' => 3306,
 //        'database' => 'quandosol_demo',
-//        'username' => 'quandosol_demo',
-//        'password' => '#kWB,mN=7ouj',
+//        'username' => 'root',
+//        'password' => '',
 //        'charset' => 'utf8mb4',
 //    ],
+//   production
+    'database' => [
+        'host' => '127.0.0.1',
+        'port' => 3306,
+        'database' => 'quandosol_demo',
+        'username' => 'quandosol_demo',
+        'password' => '#kWB,mN=7ouj',
+        'charset' => 'utf8mb4',
+    ],
     'qpro' => [
-        'environment' => 'local',
+        'environment' => 'production',
         'endpoints' => [
             'local' => 'http://qcim-backend.test/api',
             'production' => 'https://api.beta.quandosol.com/api',
         ],
 //       local
-        'api_key' => 'yS3cC7iTv5z6DBO6iPaRrh1Cs9Z0twRu',
-        'api_secret' => 'T3ewDV53EMPZs6vb5kyit6NDYn4rRtJHQmMO65sRxZAJITHCWo3n2unCVmOUfWBS',
+//        'api_key' => 'yS3cC7iTv5z6DBO6iPaRrh1Cs9Z0twRu',
+//        'api_secret' => 'T3ewDV53EMPZs6vb5kyit6NDYn4rRtJHQmMO65sRxZAJITHCWo3n2unCVmOUfWBS',
 //       production
-//        'api_key' => 'OXxd0iQPn2mHbs4PBbNtEZ2cKppfcvdl',
-//        'api_secret' => 'gK8ix5NTYRrhxMhVzmwkhc1JfEoj3WvKAvTOduHGiWcfGYK4cC9gO3jACxK2Rm5n',
+        'api_key' => 'OXxd0iQPn2mHbs4PBbNtEZ2cKppfcvdl',
+        'api_secret' => 'tPC5dj4WRnB3ZX3T1LJ9BgnHu6ikJo96c5u72BAKkNtYWPlzrIAQK1b5Bf04bUgz',
         'labels' => [
             'inventory' => 'inventory',
             'ticket' => 'ticket',

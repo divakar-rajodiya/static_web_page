@@ -1,4 +1,4 @@
-# QCIM PHP Sample App
+# Qpro PHP Sample App
 
 This sample lives inside `static_web_page/demo_app` and adds:
 
