@@ -245,7 +245,7 @@
         return bwipLoadPromise;
     }
 
-    async function generateBarcodeSVG(format, text, targetWidth, targetHeight) {
+    async function generateBarcodeSVG(format, text, targetWidth, targetHeight, color = "#000000") {
         try {
             await ensureBwipJs();
 
@@ -265,6 +265,7 @@
 
             const bcid = formatMap[format?.toLowerCase()] || format?.toLowerCase();
             const bwipHeightMm = Math.max(5, Math.round(((targetHeight || 100) / 96) * 25.4));
+            const sanitizedColor = sanitizeBarcodeColor(color);
 
             if (typeof bwipjs.toSVG === "function") {
                 return {
@@ -275,6 +276,8 @@
                         scale: 3,
                         height: bwipHeightMm,
                         includetext: false,
+                        barcolor: sanitizedColor,
+                        textcolor: sanitizedColor,
                         paddingwidth: 0,
                         paddingheight: 0,
                     }),
@@ -288,6 +291,8 @@
                 scale: 12,
                 height: bwipHeightMm,
                 includetext: false,
+                barcolor: sanitizedColor,
+                textcolor: sanitizedColor,
                 paddingwidth: 0,
                 paddingheight: 0,
             });
@@ -299,7 +304,11 @@
         }
     }
 
-    async function generateBarcodeImage(format, text, width = 200, height = 200) {
+    function sanitizeBarcodeColor(color) {
+        return String(color || "#000000").replace("#", "");
+    }
+
+    async function generateBarcodeImage(format, text, width = 200, height = 200, color = "#000000") {
         try {
             await ensureBwipJs();
 
@@ -327,6 +336,8 @@
                 scale: 12,
                 height: bwipHeightMm,
                 includetext: false,
+                barcolor: sanitizeBarcodeColor(color),
+                textcolor: sanitizeBarcodeColor(color),
                 paddingwidth: 0,
                 paddingheight: 0,
             });
@@ -469,7 +480,9 @@
             }
 
             if (el.type === "barcode") {
-                const img = await generateBarcodeImage(el.format, el.text || "", el.width || 200, el.height || 200);
+                const img = el.url
+                    ? await loadImage(el.url)
+                    : await generateBarcodeImage(el.format, el.text || "", el.width || 200, el.height || 200, el.color || "#000000");
                 if (!img) continue;
 
                 ctx.save();
@@ -808,7 +821,9 @@ ${closeGroup}`);
             if (el.type === "barcode") {
                 const barcodeWidth = el.width || 200;
                 const barcodeHeight = el.height || 200;
-                const barcode = await generateBarcodeSVG(el.format, el.text || "", barcodeWidth, barcodeHeight);
+                const barcode = el.url
+                    ? { type: "png", data: await imageUrlToDataUri(el.url) }
+                    : await generateBarcodeSVG(el.format, el.text || "", barcodeWidth, barcodeHeight, el.color || "#000000");
 
                 if (barcode) {
                     if (barcode.type === "svg") {
