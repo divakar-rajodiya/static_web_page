@@ -342,6 +342,17 @@
         }
     }
 
+    function applyTextMaxLength(text, maxLength) {
+        const normalizedText = String(text || "");
+        const normalizedMaxLength = Number(maxLength);
+
+        if (!normalizedMaxLength || normalizedMaxLength <= 0) return normalizedText;
+        if (normalizedText.length <= normalizedMaxLength) return normalizedText;
+        if (normalizedMaxLength <= 3) return ".".repeat(normalizedMaxLength);
+
+        return `${normalizedText.slice(0, normalizedMaxLength - 3)}...`;
+    }
+
     async function renderMarkupToCanvas(markup) {
         const stage = markup.stage || {};
         const inchWidth = unitToInch(stage.unit, stage.width);
@@ -366,6 +377,7 @@
                 const fontStyle = el.font?.style || "normal";
                 const color = el.font?.color || "#000000";
                 const align = el.align || "left";
+                const text = applyTextMaxLength(el.text || "", el.maxLength);
 
                 ctx.save();
                 ctx.globalAlpha = el.opacity ?? 1;
@@ -422,7 +434,7 @@
                     return result;
                 }
 
-                const rawLines = (el.text || "").split("\n");
+                const rawLines = text.split("\n");
                 const wrappedLines = [];
                 for (const raw of rawLines) {
                     wrapText(raw, maxWidth).forEach((line) => wrappedLines.push(line));
@@ -757,10 +769,11 @@
                 const fontStyle = el.font?.style || "normal";
                 const color = el.font?.color || "#000000";
                 const align = el.align || "left";
+                const text = applyTextMaxLength(el.text || "", el.maxLength);
                 const lineHeight = fontSize * 1.2;
                 const maxWidth = (el.width && el.width > 0) ? el.width : (widthPx - (el.x || 0));
                 const fontCss = `${fontStyle} ${fontSize}px ${fontFamily}`;
-                const lines = wrapTextForSvg(el.text || "", fontCss, maxWidth);
+                const lines = wrapTextForSvg(text, fontCss, maxWidth);
                 const anchor = align === "right" ? "end" : align === "center" ? "middle" : "start";
                 const textX = align === "right" ? maxWidth : align === "center" ? maxWidth / 2 : 0;
                 const tspans = lines.map((line, index) => (
