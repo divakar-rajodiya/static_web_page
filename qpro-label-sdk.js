@@ -353,15 +353,44 @@
         }
     }
 
-    function applyTextMaxLength(text, maxLength) {
-        const normalizedText = String(text || "");
-        const normalizedMaxLength = Number(maxLength);
+    function ellipsizeTextLine(line, maxWidth, measureWidth) {
+        const normalizedLine = String(line || "");
+        const normalizedMaxWidth = Number(maxWidth);
 
-        if (!normalizedMaxLength || normalizedMaxLength <= 0) return normalizedText;
-        if (normalizedText.length <= normalizedMaxLength) return normalizedText;
-        if (normalizedMaxLength <= 3) return ".".repeat(normalizedMaxLength);
+        if (!normalizedMaxWidth || normalizedMaxWidth <= 0) return normalizedLine;
+        if (measureWidth(normalizedLine) <= normalizedMaxWidth) return normalizedLine;
 
-        return `${normalizedText.slice(0, normalizedMaxLength - 3)}...`;
+        const ellipsis = "...";
+        if (measureWidth(ellipsis) > normalizedMaxWidth) return "";
+
+        let truncated = normalizedLine;
+        while (truncated.length > 0 && measureWidth(`${truncated}${ellipsis}`) > normalizedMaxWidth) {
+            truncated = truncated.slice(0, -1);
+        }
+
+        return `${truncated}${ellipsis}`;
+    }
+
+    function getTextLayout(el, measureWidth) {
+        const text = String(el?.text || "");
+        const fontSize = Number(el?.font?.size || 14);
+        const lineHeight = fontSize * 1.2;
+        const maxWidth = Number(el?.width || 0);
+        const maxHeight = Number(el?.height || 0);
+        const rawLines = text.split(/\r\n|\n|\r/);
+        const visibleLineCount = maxHeight > 0
+            ? Math.max(0, Math.floor(maxHeight / lineHeight))
+            : rawLines.length;
+        const visibleLines = rawLines.slice(0, visibleLineCount);
+        const lines = visibleLines.map((line) => ellipsizeTextLine(line, maxWidth, measureWidth));
+
+        return {
+            lines,
+            displayText: lines.join("\n"),
+            lineHeight,
+            width: maxWidth > 0 ? maxWidth : null,
+            height: maxHeight > 0 ? maxHeight : (lines.length * lineHeight),
+        };
     }
 
     async function renderMarkupToCanvas(markup) {
@@ -388,8 +417,6 @@
                 const fontStyle = el.font?.style || "normal";
                 const color = el.font?.color || "#000000";
                 const align = el.align || "left";
-                const text = applyTextMaxLength(el.text || "", el.maxLength);
-
                 ctx.save();
                 ctx.globalAlpha = el.opacity ?? 1;
                 ctx.translate(el.x || 0, el.y || 0);
@@ -400,65 +427,21 @@
                 ctx.textBaseline = "top";
                 ctx.textAlign = align;
 
-                const lineHeight = fontSize * 1.2;
                 const labelLogicalWidth = inchWidth * DPI;
-                const maxWidth = (el.width && el.width > 0) ? el.width : (labelLogicalWidth - (el.x || 0));
-
-                function wrapText(str, maxW) {
-                    if (!maxW || maxW <= 0) return [str.trim()];
-
-                    const result = [];
-                    const words = str.trim().split(" ");
-                    let current = "";
-
-                    for (const word of words) {
-                        if (ctx.measureText(word).width > maxW) {
-                            if (current) {
-                                result.push(current);
-                                current = "";
-                            }
-
-                            let charBuf = "";
-                            for (const ch of word) {
-                                const test = charBuf + ch;
-                                if (ctx.measureText(test).width > maxW && charBuf !== "") {
-                                    result.push(charBuf);
-                                    charBuf = ch;
-                                } else {
-                                    charBuf = test;
-                                }
-                            }
-                            if (charBuf) current = charBuf;
-                            continue;
-                        }
-
-                        const test = current ? `${current} ${word}` : word;
-                        if (ctx.measureText(test).width > maxW && current !== "") {
-                            result.push(current);
-                            current = word;
-                        } else {
-                            current = test;
-                        }
-                    }
-
-                    if (current) result.push(current);
-                    return result;
-                }
-
-                const rawLines = text.split("\n");
-                const wrappedLines = [];
-                for (const raw of rawLines) {
-                    wrapText(raw, maxWidth).forEach((line) => wrappedLines.push(line));
-                }
+                const textBoxWidth = (el.width && el.width > 0) ? el.width : (labelLogicalWidth - (el.x || 0));
+                const layout = getTextLayout(
+                    { ...el, width: textBoxWidth, height: el.height },
+                    (value) => ctx.measureText(value).width
+                );
 
                 const textX = align === "right"
-                    ? maxWidth
+                    ? textBoxWidth
                     : align === "center"
-                        ? maxWidth / 2
+                        ? textBoxWidth / 2
                         : 0;
 
-                wrappedLines.forEach((line, index) => {
-                    ctx.fillText(line, textX, index * lineHeight);
+                layout.lines.forEach((line, index) => {
+                    ctx.fillText(line, textX, index * layout.lineHeight);
                 });
 
                 ctx.restore();
@@ -705,60 +688,11 @@
         return transform;
     }
 
-    function wrapTextForSvg(text, fontCss, maxWidth) {
-        if (!maxWidth || maxWidth <= 0) {
-            return text.trim().split("\n");
-        }
-
+    function createSvgTextMeasurer(fontCss) {
         const measureCanvas = document.createElement("canvas");
         const measureContext = measureCanvas.getContext("2d");
         measureContext.font = fontCss;
-
-        function measure(str) {
-            return measureContext.measureText(str).width;
-        }
-
-        const rawLines = (text || "").split("\n");
-        const result = [];
-
-        for (const raw of rawLines) {
-            const words = raw.trim().split(" ");
-            let current = "";
-
-            for (const word of words) {
-                if (measure(word) > maxWidth) {
-                    if (current) {
-                        result.push(current);
-                        current = "";
-                    }
-
-                    let charBuf = "";
-                    for (const ch of word) {
-                        const test = charBuf + ch;
-                        if (measure(test) > maxWidth && charBuf !== "") {
-                            result.push(charBuf);
-                            charBuf = ch;
-                        } else {
-                            charBuf = test;
-                        }
-                    }
-                    if (charBuf) current = charBuf;
-                    continue;
-                }
-
-                const test = current ? `${current} ${word}` : word;
-                if (measure(test) > maxWidth && current !== "") {
-                    result.push(current);
-                    current = word;
-                } else {
-                    current = test;
-                }
-            }
-
-            if (current) result.push(current);
-        }
-
-        return result.length ? result : [""];
+        return (value) => measureContext.measureText(value).width;
     }
 
     async function renderMarkupToSVG(markup) {
@@ -782,15 +716,16 @@
                 const fontStyle = el.font?.style || "normal";
                 const color = el.font?.color || "#000000";
                 const align = el.align || "left";
-                const text = applyTextMaxLength(el.text || "", el.maxLength);
-                const lineHeight = fontSize * 1.2;
-                const maxWidth = (el.width && el.width > 0) ? el.width : (widthPx - (el.x || 0));
                 const fontCss = `${fontStyle} ${fontSize}px ${fontFamily}`;
-                const lines = wrapTextForSvg(text, fontCss, maxWidth);
+                const textBoxWidth = (el.width && el.width > 0) ? el.width : (widthPx - (el.x || 0));
+                const layout = getTextLayout(
+                    { ...el, width: textBoxWidth, height: el.height },
+                    createSvgTextMeasurer(fontCss)
+                );
                 const anchor = align === "right" ? "end" : align === "center" ? "middle" : "start";
-                const textX = align === "right" ? maxWidth : align === "center" ? maxWidth / 2 : 0;
-                const tspans = lines.map((line, index) => (
-                    `<tspan x="${textX}" dy="${index === 0 ? 0 : lineHeight}">${svgEscape(line)}</tspan>`
+                const textX = align === "right" ? textBoxWidth : align === "center" ? textBoxWidth / 2 : 0;
+                const tspans = layout.lines.map((line, index) => (
+                    `<tspan x="${textX}" dy="${index === 0 ? 0 : layout.lineHeight}">${svgEscape(line)}</tspan>`
                 )).join("");
 
                 parts.push(`${openGroup}
