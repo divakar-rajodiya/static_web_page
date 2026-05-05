@@ -66,6 +66,12 @@
         }
         .btn-export-svg:hover { background: #6d28d9; }
 
+        /* Mode 6 — Backend Export SVG */
+        .btn-backend-svg {
+            background: #0891b2;
+        }
+        .btn-backend-svg:hover { background: #0e7490; }
+
         .json-modal {
             position: fixed;
             inset: 0;
@@ -142,6 +148,7 @@
         <th title="Send label to printer via PrintNode using ZPL format">🖨 PrintNode ZPL</th>
         <th title="Send label to printer via PrintNode using PDF/Image format">🖨 PrintNode PDF</th>
         <th title="Convert label markups to a self-contained SVG file and download it">⬇ Export SVG</th>
+        <th title="Ask backend to convert markups to SVG and return stored file URL">🔗 Server SVG</th>
     </tr>
     </thead>
 
@@ -162,6 +169,7 @@
         <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
         <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
         <td><button class="btn-export-svg"    onclick="exportSVG(this)">⬇ SVG</button></td>
+        <td><button class="btn-backend-svg"  onclick="exportBackendSVG(this)">Server SVG</button></td>
     </tr>
 
     <tr>
@@ -180,6 +188,7 @@
         <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
         <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
         <td><button class="btn-export-svg"    onclick="exportSVG(this)">⬇ SVG</button></td>
+        <td><button class="btn-backend-svg"  onclick="exportBackendSVG(this)">Server SVG</button></td>
     </tr>
 
     <tr>
@@ -198,6 +207,7 @@
         <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
         <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
         <td><button class="btn-export-svg"    onclick="exportSVG(this)">⬇ SVG</button></td>
+        <td><button class="btn-backend-svg"  onclick="exportBackendSVG(this)">Server SVG</button></td>
     </tr>
 
     <tr>
@@ -216,6 +226,7 @@
         <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
         <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
         <td><button class="btn-export-svg"    onclick="exportSVG(this)">⬇ SVG</button></td>
+        <td><button class="btn-backend-svg"  onclick="exportBackendSVG(this)">Server SVG</button></td>
     </tr>
 
     <tr>
@@ -234,6 +245,7 @@
         <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
         <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
         <td><button class="btn-export-svg"    onclick="exportSVG(this)">⬇ SVG</button></td>
+        <td><button class="btn-backend-svg"  onclick="exportBackendSVG(this)">Server SVG</button></td>
     </tr>
 
     <tr>
@@ -252,6 +264,7 @@
         <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
         <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
         <td><button class="btn-export-svg"    onclick="exportSVG(this)">⬇ SVG</button></td>
+        <td><button class="btn-backend-svg"  onclick="exportBackendSVG(this)">Server SVG</button></td>
     </tr>
 
     <tr>
@@ -270,6 +283,7 @@
         <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
         <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
         <td><button class="btn-export-svg"    onclick="exportSVG(this)">⬇ SVG</button></td>
+        <td><button class="btn-backend-svg"  onclick="exportBackendSVG(this)">Server SVG</button></td>
     </tr>
 
     <tr>
@@ -288,6 +302,7 @@
         <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
         <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
         <td><button class="btn-export-svg"    onclick="exportSVG(this)">⬇ SVG</button></td>
+        <td><button class="btn-backend-svg"  onclick="exportBackendSVG(this)">Server SVG</button></td>
     </tr>
 
     <tr>
@@ -306,6 +321,7 @@
         <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
         <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
         <td><button class="btn-export-svg"    onclick="exportSVG(this)">⬇ SVG</button></td>
+        <td><button class="btn-backend-svg"  onclick="exportBackendSVG(this)">Server SVG</button></td>
     </tr>
 
     <tr>
@@ -324,6 +340,7 @@
         <td><button class="btn-printnode-zpl"  onclick="printNodeLabel(this)">ZPL Print</button></td>
         <td><button class="btn-printnode-pdf"  onclick="printNodePdf(this)">PDF Print</button></td>
         <td><button class="btn-export-svg"    onclick="exportSVG(this)">⬇ SVG</button></td>
+        <td><button class="btn-backend-svg"  onclick="exportBackendSVG(this)">Server SVG</button></td>
     </tr>
     </tbody>
 </table>
@@ -337,8 +354,8 @@
   //local
   const QPRO_CONFIG = {
     apiBaseUrl: "http://qcim-backend.test/api",
-    api_key: "WhfLxEHQckQu27E7PsgAvirzDdvTNO3s",
-    api_token: "J4U3UTQviKE8js7bS1PjVGzlk5siLzYQ1q6H1ulZxkdHke0fd0FWa0w50uXMfJ0b",
+    api_key: "ArekWuqlisy6QtdfBLEpJLKsa7Y94fhJ",
+    api_token: "lqLXBO5IINuSszXlrLGCNufMlHwsUuFDEqqkeRjDDZd60rErgqAVJLKtbp5JsBaJ",
     printPageUrl: "./print-label.html",
     debug: true,
   };
@@ -488,6 +505,55 @@
       apiData: data,
       mode: "export_svg",
     });
+  }
+
+  async function exportBackendSVG(button) {
+    const data = getRowData(button);
+    try {
+      const response = await QPROLabelAPI.exportBackendSVG({
+        label_name: data.label_name,
+        amount: 1,
+        apiData: data,
+      });
+      console.log("Server SVG export response:", response);
+
+      const files = Array.isArray(response?.files) ? response.files : [];
+      for (const file of files) {
+        if (file?.path) {
+          await downloadBackendSvgFile(file, data.label_name);
+        }
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert(`❌ ${error.message}`);
+    }
+  }
+
+  async function downloadBackendSvgFile(file, labelName) {
+    const blob = await QPROLabelAPI.downloadBackendSVG({ path: file.path });
+    const objectUrl = URL.createObjectURL(blob);
+    triggerDownload(objectUrl, getSvgFilename(file, labelName));
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
+  }
+
+  function triggerDownload(url, filename) {
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.style.display = "none";
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+  }
+
+  function getSvgFilename(file, labelName) {
+    if (file?.path) {
+      const pathName = file.path.split("/").pop();
+      if (pathName) return pathName;
+    }
+
+    return `${String(labelName || "label").replace(/[^a-z0-9_-]+/gi, "-")}.svg`;
   }
 </script>
 

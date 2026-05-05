@@ -3,6 +3,7 @@
  *
  * Use this file for direct API flows that do not need the renderer SDK:
  *  - fetch_markups
+ *  - export-svg (server-rendered SVG)
  *  - print-node (ZPL)
  *  - print-node-pdf
  */
@@ -91,6 +92,58 @@
         }
 
         return data;
+    };
+
+    QPROLabelAPI.exportBackendSVG = async function ({
+        label_name,
+        amount = 1,
+        apiData = {},
+    }) {
+        validateCommonPayload({ label_name, amount, apiData });
+
+        return requestJson("/custom-labels/export-svg", {
+            label_name,
+            amount,
+            apiData,
+        });
+    };
+
+    QPROLabelAPI.downloadBackendSVG = async function ({ path }) {
+        const { apiBaseUrl, api_key, api_token } = QPROLabelAPI.config;
+
+        if (!apiBaseUrl) {
+            throw new Error("apiBaseUrl is missing in config.");
+        }
+        if (!api_key || !api_token) {
+            throw new Error("api key/api token missing in config.");
+        }
+        if (!path) {
+            throw new Error("SVG path is required.");
+        }
+
+        const url = `${apiBaseUrl}/custom-labels/download-svg?path=${encodeURIComponent(path)}`;
+        log("Downloading backend SVG:", url);
+
+        const res = await fetch(url, {
+            method: "GET",
+            headers: {
+                "X-API-KEY": api_key,
+                "X-API-SECRET": api_token,
+            },
+        });
+
+        if (!res.ok) {
+            let message = "Unable to download SVG file.";
+            try {
+                const data = await res.json();
+                message = data?.message || data?.error || message;
+            } catch (error) {
+                // Keep the generic download error.
+            }
+            throw new Error(message);
+        }
+
+        return res.blob();
     };
 
     QPROLabelAPI.printNodeZpl = async function ({

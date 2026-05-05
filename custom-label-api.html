@@ -23,6 +23,7 @@
             --m3: #fb923c;   /* PrintNode ZPL  – orange */
             --m4: #60a5fa;   /* PrintNode PDF  – blue */
             --m5: #f472b6;   /* Export SVG     – pink */
+            --m6: #22d3ee;   /* Backend SVG    – cyan */
 
             --radius: 10px;
             --mono: 'IBM Plex Mono', monospace;
@@ -473,6 +474,8 @@
         .nav-link[data-m="2"].active { border-left-color: var(--m2); color: var(--m2); background: rgba(52,211,153,.07); }
         .nav-link[data-m="3"].active { border-left-color: var(--m3); color: var(--m3); background: rgba(251,146,60,.07); }
         .nav-link[data-m="4"].active { border-left-color: var(--m4); color: var(--m4); background: rgba(96,165,250,.07); }
+        .nav-link[data-m="5"].active { border-left-color: var(--m5); color: var(--m5); background: rgba(244,114,182,.07); }
+        .nav-link[data-m="6"].active { border-left-color: var(--m6); color: var(--m6); background: rgba(34,211,238,.07); }
 
         /* ── RESPONSIVE ── */
         @media (max-width: 1024px) {
@@ -506,6 +509,7 @@
         <a href="#method3" class="nav-link" data-m="3"><span class="nav-dot" style="background:var(--m3)"></span>3 : PrintNode ZPL</a>
         <a href="#method4" class="nav-link" data-m="4"><span class="nav-dot" style="background:var(--m4)"></span>4 : PrintNode PDF</a>
         <a href="#method5" class="nav-link" data-m="5"><span class="nav-dot" style="background:var(--m5)"></span>5 : Export SVG</a>
+        <a href="#method6" class="nav-link" data-m="6"><span class="nav-dot" style="background:var(--m6)"></span>6 : Backend SVG</a>
 
         <span class="nav-section">Reference</span>
         <a href="#choosing"       class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Choosing a Method</a>
@@ -530,6 +534,7 @@
                 <a href="#method3" class="method-hero-card"><span class="dot" style="background:var(--m3)"></span>PrintNode ZPL</a>
                 <a href="#method4" class="method-hero-card"><span class="dot" style="background:var(--m4)"></span>PrintNode PDF</a>
                 <a href="#method5" class="method-hero-card"><span class="dot" style="background:var(--m5)"></span>Export SVG</a>
+                <a href="#method6" class="method-hero-card"><span class="dot" style="background:var(--m6)"></span>Server SVG</a>
             </div>
         </div>
 
@@ -618,6 +623,13 @@
                             <td>Fetches markup and converts each label into a self-contained SVG file</td>
                             <td>Archiving, custom workflows, external print pipelines</td>
                             <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td><span style="color:var(--m6);font-weight:700">6</span></td>
+                            <td><strong style="color:var(--m6)">Backend SVG</strong></td>
+                            <td>Converts markups to SVG on the backend, stores the file, and returns its URL</td>
+                            <td>Server-controlled SVG generation and temporary file links</td>
+                            <td>No</td>
                         </tr>
                         </tbody>
                     </table>
@@ -752,6 +764,7 @@
                     <li><strong>Method 1</strong> -> <code>POST /api/custom-labels/fetch-markups</code></li>
                     <li><strong>Method 3</strong> -> <code>POST /api/custom-labels/print-node</code></li>
                     <li><strong>Method 4</strong> -> <code>POST /api/custom-labels/print-node-pdf</code></li>
+                    <li><strong>Method 6</strong> -> <code>POST /api/custom-labels/export-svg</code></li>
                 </ul>
 
                 <h3>Example Files</h3>
@@ -1352,6 +1365,99 @@ console.log(markups);</pre>
             </div>
 
             <!-- ══════════════════════════════════════════════
+                 METHOD 6 - BACKEND SVG
+            ══════════════════════════════════════════════ -->
+            <div class="method-section" id="method6" style="border-color: rgba(34,211,238,.35); margin-top: 28px;">
+                <div class="method-header" style="background: rgba(34,211,238,.08);">
+                    <div class="method-number" style="background:rgba(34,211,238,.15);color:var(--m6);">6</div>
+                    <div class="method-header-text">
+                        <h3 style="color:var(--m6);">Backend SVG</h3>
+                        <p>Backend resolves markup, renders SVG, stores the file, and returns a temporary URL</p>
+                    </div>
+                    <span class="method-badge" style="color:var(--m6);border-color:rgba(34,211,238,.35);background:rgba(34,211,238,.1);">Server-Side</span>
+                </div>
+
+                <div class="method-body">
+                    <p>This method uses the same request payload as Fetch Markups, but the SVG conversion happens on the backend. The response contains public SVG URLs stored under the backend storage disk, plus expiry metadata for future cleanup automation.</p>
+
+                    <h3>API Endpoint</h3>
+                    <div class="code-wrap">
+                        <pre>POST /api/custom-labels/export-svg</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+
+                    <h3>Request Body</h3>
+                    <div class="code-wrap">
+            <pre>{
+  "label_name": "Label A",
+  "amount":     1,
+  "apiData": {
+    "IMEI":             "356938035643809",
+    "Model_No":         "iPhone 13",
+    "Serial_No":        "SN-A12345",
+    "GT_Battery_Ratio": "92%",
+    "Carriers":         "Unlocked"
+  }
+}</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+
+                    <h3>Response</h3>
+                    <div class="code-wrap">
+            <pre>{
+  "status": "svg_exported",
+  "ttl_hours": 24,
+  "expires_at": "2026-05-06T12:00:00+05:30",
+  "files": [
+    {
+      "url": "https://app.quandosol.com/storage/custom-label-svgs/2026/05/05/label-a-uuid.svg",
+      "path": "custom-label-svgs/2026/05/05/label-a-uuid.svg",
+      "expires_at": "2026-05-06T12:00:00+05:30"
+    }
+  ]
+}</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+
+                    <h3>Direct JavaScript Usage</h3>
+                    <div class="code-wrap">
+            <pre>const result = await QPROLabelAPI.exportBackendSVG({
+  label_name: "Label A",
+  amount: 1,
+  apiData: {
+    IMEI: "356938035643809",
+    Model_No: "iPhone 13",
+    Serial_No: "SN-A12345",
+    GT_Battery_Ratio: "92%",
+    Carriers: "Unlocked"
+  }
+});
+
+const blob = await QPROLabelAPI.downloadBackendSVG({
+  path: result.files[0].path
+});
+const objectUrl = URL.createObjectURL(blob);
+const anchor = document.createElement("a");
+anchor.href = objectUrl;
+anchor.download = result.files[0].path.split("/").pop();
+anchor.click();
+setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+
+                    <div class="flow">
+                        <div class="flow-step">Client calls API</div>
+                        <div class="flow-arrow">-></div>
+                        <div class="flow-step">POST /export-svg</div>
+                        <div class="flow-arrow">-></div>
+                        <div class="flow-step">Backend renders SVG</div>
+                        <div class="flow-arrow">-></div>
+                        <div class="flow-step">Stored URL returned</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════════
                  SECTION: Choosing a Method
             ══════════════════════════════════════════════ -->
             <section id="choosing">
@@ -1370,6 +1476,7 @@ console.log(markups);</pre>
                         <tr><td>Standard office or laser printer</td><td><strong style="color:var(--m4)">4 - PrintNode PDF</strong></td></tr>
                         <tr><td>Complex graphics or high-quality output</td><td><strong style="color:var(--m4)">4 - PrintNode PDF</strong></td></tr>
                         <tr><td>Download label output for archiving or another print pipeline</td><td><strong style="color:var(--m5)">5 - Export SVG</strong></td></tr>
+                        <tr><td>Need backend-owned SVG files and returned URLs</td><td><strong style="color:var(--m6)">6 - Backend SVG</strong></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1441,6 +1548,7 @@ console.log(markups);</pre>
                     <li><strong>Never expose API credentials in frontend code.</strong> In production, proxy all API calls through your own backend.</li>
                     <li>Use <strong>Method 1 (Fetch Markups)</strong> during development to validate your variable data before wiring up any print method.</li>
                     <li>Load the hosted SDK only when you need <strong>Method 2</strong> or <strong>Method 5</strong>.</li>
+                    <li>Use <strong>Method 6 (Backend SVG)</strong> when SVG files should be generated and stored by Quandosol instead of the browser.</li>
                     <li>Cache label template metadata where possible to reduce repeated API calls.</li>
                     <li>Validate all <code>apiData</code> values on the client side before sending the request.</li>
                     <li>Store your API token securely immediately after generation - it is shown only once.</li>
@@ -1448,7 +1556,7 @@ console.log(markups);</pre>
 
                 <div class="callout success" style="margin-top:28px;">
                     <span class="callout-icon"></span>
-                    <p>Quandosol enables flexible label workflows from any system - use <strong>Fetch Markups</strong> to preview, <strong>Print Markups</strong> for browser printing, <strong>PrintNode ZPL/PDF</strong> for direct printer delivery, and <strong>Export SVG</strong> when you need vector output from the browser.</p>
+                    <p>Quandosol enables flexible label workflows from any system - use <strong>Fetch Markups</strong> to preview, <strong>Print Markups</strong> for browser printing, <strong>PrintNode ZPL/PDF</strong> for direct printer delivery, <strong>Export SVG</strong> for browser-generated vectors, and <strong>Backend SVG</strong> for stored SVG URLs.</p>
                 </div>
             </section>
 
