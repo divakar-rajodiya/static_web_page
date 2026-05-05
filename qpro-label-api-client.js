@@ -101,16 +101,17 @@
     }) {
         validateCommonPayload({ label_name, amount, apiData });
 
-        if (!printer_id) {
-            throw new Error("printer_id is required.");
-        }
-
-        return requestJson("/custom-labels/print-node", {
+        const payload = {
             label_name,
             amount,
             apiData,
-            printer_id,
-        });
+        };
+
+        if (printer_id) {
+            payload.printer_id = printer_id;
+        }
+
+        return requestJson("/custom-labels/print-node", payload);
     };
 
     QPROLabelAPI.printNodePdf = async function ({
@@ -121,16 +122,17 @@
     }) {
         validateCommonPayload({ label_name, amount, apiData });
 
-        if (!printer_id) {
-            throw new Error("printer_id is required.");
-        }
-
-        return requestJson("/custom-labels/print-node-pdf", {
+        const payload = {
             label_name,
             amount,
             apiData,
-            printer_id,
-        });
+        };
+
+        if (printer_id) {
+            payload.printer_id = printer_id;
+        }
+
+        return requestJson("/custom-labels/print-node-pdf", payload);
     };
 
     global.QPROLabelAPI = QPROLabelAPI;
