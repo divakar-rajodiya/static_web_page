@@ -17,9 +17,9 @@
             printNodePrinterId: 75208784,
         },
         prod: {
-            apiBaseUrl: "https://quandosol.com/api",
-            api_key: "splsTpbkLDzYREpXxpTLGA20V7szpyda",
-            api_token: "t06utpbYol5mVgnbYp89Ym5qId4IuFKFrK6KDfkCZm9Mn0N0v5zqvdcPDJOs2yY8",
+            apiBaseUrl: "https://api.quandosol.com/api",
+            api_key: "qPcdpaHTqPDovbLXFv47QlOJYCYq2Mdt",
+            api_token: "DjbXzjSjRhqc0gJFiSY2bO9B7hZWACc2JMkixW7a92ahdBe5mO7q1DwRo9nacoWs",
             printPageUrl: "./print-label.html",
             debug: false,
             printNodePrinterId: 75208784,
