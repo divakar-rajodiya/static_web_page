@@ -2,11 +2,12 @@
     const environments = {
         local: {
             apiBaseUrl: "http://qcim-backend.test/api",
-            api_key: "splsTpbkLDzYREpXxpTLGA20V7szpyda",
-            api_token: "t06utpbYol5mVgnbYp89Ym5qId4IuFKFrK6KDfkCZm9Mn0N0v5zqvdcPDJOs2yY8",
+            api_key: "oOt0TuQpZIZgVPFEgeYFFZxCANgOtpAt",
+            api_token: "ZNuTUFLS7d7DwZwPzqfQeicIBwGnLwx6u5alOn9NB5j7uZoWVZb3WXDanKCH7Nb7",
             printPageUrl: "./print-label.html",
             debug: true,
-            printNodePrinterId: 75236019,
+            // printNodePrinterId: 75236019,
+            printNodePrinterId: 75589825,
         },
         beta: {
             apiBaseUrl: "https://api.beta.quandosol.com/api",

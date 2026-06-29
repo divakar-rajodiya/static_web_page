@@ -371,8 +371,25 @@
         return `${truncated}${ellipsis}`;
     }
 
+    function applyTextDirection(text, direction) {
+        const normalizedText = String(text || "");
+
+        if (direction === "ttb") {
+            return Array.from(normalizedText).join("\n");
+        }
+
+        if (direction === "rtl") {
+            return normalizedText
+                .split(/\r\n|\n|\r/)
+                .map((line) => Array.from(line).reverse().join(""))
+                .join("\n");
+        }
+
+        return normalizedText;
+    }
+
     function getTextLayout(el, measureWidth) {
-        const text = String(el?.text || "");
+        const text = applyTextDirection(el?.text || "", el?.direction || "ltr");
         const fontSize = Number(el?.font?.size || 14);
         const lineHeight = fontSize * 1.2;
         const maxWidth = Number(el?.width || 0);
