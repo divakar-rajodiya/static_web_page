@@ -23,6 +23,8 @@
             --m3: #fb923c;   /* PrintNode ZPL  – orange */
             --m4: #60a5fa;   /* PrintNode PDF  – blue */
             --m6: #22d3ee;   /* Export SVG    – cyan */
+            --m5: #f472b6;   /* Render ZPL    – pink */
+            --m7: #a3e635;   /* Render PDF    – lime */
 
             --radius: 10px;
             --mono: 'IBM Plex Mono', monospace;
@@ -475,6 +477,7 @@
         .nav-link[data-m="4"].active { border-left-color: var(--m4); color: var(--m4); background: rgba(96,165,250,.07); }
         .nav-link[data-m="5"].active { border-left-color: var(--m5); color: var(--m5); background: rgba(244,114,182,.07); }
         .nav-link[data-m="6"].active { border-left-color: var(--m6); color: var(--m6); background: rgba(34,211,238,.07); }
+        .nav-link[data-m="7"].active { border-left-color: var(--m7); color: var(--m7); background: rgba(163,230,53,.07); }
 
         /* ── RESPONSIVE ── */
         @media (max-width: 1024px) {
@@ -508,6 +511,8 @@
         <a href="#method3" class="nav-link" data-m="3"><span class="nav-dot" style="background:var(--m3)"></span>3 : PrintNode ZPL</a>
         <a href="#method4" class="nav-link" data-m="4"><span class="nav-dot" style="background:var(--m4)"></span>4 : PrintNode PDF</a>
         <a href="#method5" class="nav-link" data-m="6"><span class="nav-dot" style="background:var(--m6)"></span>5 : Export SVG</a>
+        <a href="#method6" class="nav-link" data-m="5"><span class="nav-dot" style="background:var(--m5)"></span>6 : Render ZPL</a>
+        <a href="#method7" class="nav-link" data-m="7"><span class="nav-dot" style="background:var(--m7)"></span>7 : Render PDF</a>
 
         <span class="nav-section">Reference</span>
         <a href="#choosing"       class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Choosing a Method</a>
@@ -532,6 +537,8 @@
                 <a href="#method3" class="method-hero-card"><span class="dot" style="background:var(--m3)"></span>PrintNode ZPL</a>
                 <a href="#method4" class="method-hero-card"><span class="dot" style="background:var(--m4)"></span>PrintNode PDF</a>
                 <a href="#method5" class="method-hero-card"><span class="dot" style="background:var(--m6)"></span>Server SVG</a>
+                <a href="#method6" class="method-hero-card"><span class="dot" style="background:var(--m5)"></span>Render ZPL</a>
+                <a href="#method7" class="method-hero-card"><span class="dot" style="background:var(--m7)"></span>Render PDF</a>
             </div>
         </div>
 
@@ -572,7 +579,7 @@
             ══════════════════════════════════════════════ -->
             <section id="overview">
                 <h2>Methods Overview</h2>
-                <p>There are four API endpoints and one client-side export method. Choose the option that fits your workflow.</p>
+                <p>There are six API endpoints and one client-side export method. Choose the option that fits your workflow.</p>
 
                 <div class="table-wrap">
                     <table>
@@ -619,6 +626,20 @@
                             <td><strong style="color:var(--m6)">Export SVG</strong></td>
                             <td>Converts markups to SVG on the backend, stores the file, and returns its URL</td>
                             <td>Server-controlled SVG generation and temporary file links</td>
+                            <td>No</td>
+                        </tr>
+                        <tr>
+                            <td><span style="color:var(--m5);font-weight:700">6</span></td>
+                            <td><strong style="color:var(--m5)">Render ZPL</strong></td>
+                            <td>Returns the ZPL to your application instead of sending it to a printer</td>
+                            <td>Relaying to your own printer endpoint - no PrintNode account</td>
+                            <td>No</td>
+                        </tr>
+                        <tr>
+                            <td><span style="color:var(--m7);font-weight:700">7</span></td>
+                            <td><strong style="color:var(--m7)">Render PDF</strong></td>
+                            <td>Returns the PDF to your application, base64 encoded</td>
+                            <td>Your own print server, archiving, emailing the label</td>
                             <td>No</td>
                         </tr>
                         </tbody>
@@ -680,6 +701,7 @@
             ══════════════════════════════════════════════ -->
             <section id="auth">
                 <h2>Authentication</h2>
+                <p>All examples use the production API base URL: <code>https://api.quandosol.com/api</code>. Custom-label endpoints are under <code>/custom-labels/</code>. The <code>app.quandosol.com</code> domain hosts documentation and demos; send API requests to <code>api.quandosol.com</code>.</p>
                 <p>All API requests require two authentication headers. These are available in your Quandosol dashboard under <strong>API Settings</strong>.</p>
 
                 <div class="table-wrap">
@@ -716,7 +738,7 @@
                 <h3>2. Configure the SDK</h3>
                 <div class="code-wrap">
           <pre>QPROLabelSDK.setConfig({
-  apiBaseUrl:   "https://app.quandosol.com/api",
+  apiBaseUrl:   "https://api.quandosol.com/api",
   api_key:      "YOUR_API_KEY",
   api_token:    "YOUR_API_TOKEN",
   printPageUrl: "./print-label.html",   // required for Method 2 only
@@ -838,7 +860,7 @@
 
                     <h3>Direct JavaScript Usage</h3>
                     <div class="code-wrap">
-            <pre>const response = await fetch("https://app.quandosol.com/api/custom-labels/fetch-markups", {
+            <pre>const response = await fetch("https://api.quandosol.com/api/custom-labels/fetch-markups", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -1103,7 +1125,7 @@ console.log(markups);</pre>
 
                     <h3>Direct JavaScript Usage</h3>
                     <div class="code-wrap">
-            <pre>await fetch("https://app.quandosol.com/api/custom-labels/print-node", {
+            <pre>await fetch("https://api.quandosol.com/api/custom-labels/print-node", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -1225,7 +1247,7 @@ console.log(markups);</pre>
 
                     <h3>Direct JavaScript Usage</h3>
                     <div class="code-wrap">
-            <pre>await fetch("https://app.quandosol.com/api/custom-labels/print-node-pdf", {
+            <pre>await fetch("https://api.quandosol.com/api/custom-labels/print-node-pdf", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -1330,7 +1352,7 @@ console.log(markups);</pre>
   "expires_at": "2026-05-06T12:00:00+05:30",
   "files": [
     {
-      "url": "https://app.quandosol.com/storage/custom-label-svgs/2026/05/05/label-a-uuid.svg",
+      "url": "https://api.quandosol.com/storage/custom-label-svgs/2026/05/05/label-a-uuid.svg",
       "path": "custom-label-svgs/2026/05/05/label-a-uuid.svg",
       "expires_at": "2026-05-06T12:00:00+05:30"
     }
@@ -1378,6 +1400,267 @@ setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);</pre>
             </div>
 
             <!-- ══════════════════════════════════════════════
+                 METHOD 6 - RENDER ZPL
+            ══════════════════════════════════════════════ -->
+            <div class="method-section" id="method6" style="border-color: rgba(244,114,182,.3); margin-top: 28px;">
+                <div class="method-header" style="background: rgba(244,114,182,.06);">
+                    <div class="method-number" style="background:rgba(244,114,182,.15);color:var(--m5);">6</div>
+                    <div class="method-header-text">
+                        <h3 style="color:var(--m5);">Render ZPL</h3>
+                        <p>Returns the ZPL to your application - no PrintNode account involved</p>
+                    </div>
+                    <span class="method-badge" style="color:var(--m5);border-color:rgba(244,114,182,.3);background:rgba(244,114,182,.08);">Server-Side</span>
+                </div>
+
+                <div class="method-body">
+                    <p>Same ZPL as Method 3, handed back to you instead of sent to a printer. PrintNode is only ever the courier that carries finished output to a printer - the output itself is produced by Quandosol, so if you already relay print jobs to your own printer endpoint, this method gives you the bytes directly.</p>
+
+                    <h3>Prerequisites</h3>
+                    <ul>
+                        <li>No PrintNode account, no PrintNode client, no registered printer</li>
+                        <li>No SDK required</li>
+                        <li>A way to deliver ZPL to your printer - a socket on port 9100, a CUPS raw queue, or your existing print relay</li>
+                    </ul>
+
+                    <h3>API Endpoint</h3>
+                    <div class="code-wrap">
+                        <pre>POST /api/custom-labels/render-zpl</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+
+                    <h3>Request Body</h3>
+                    <div class="code-wrap">
+            <pre>{
+  "label_name":     "Label A",
+  "amount":         2,
+  "dpi":            300,
+  "max_width_dots": 1248,
+  "apiData": {
+    "IMEI":             "356938035643809",
+    "Model_No":         "iPhone 13",
+    "Serial_No":        "SN-A12345",
+    "GT_Battery_Ratio": "92%",
+    "Carriers":         "Unlocked"
+  }
+}</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+
+                    <h3>Parameters</h3>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+                            <tbody>
+                            <tr><td><code>label_name</code></td><td>string</td><td>Yes</td><td>Exact label name in your account, including capitalisation</td></tr>
+                            <tr><td><code>amount</code></td><td>integer</td><td>Yes</td><td>Copies to render, 1 or more - each copy is returned separately</td></tr>
+                            <tr><td><code>apiData</code></td><td>object</td><td>Yes</td><td>The label's variable values, keyed by field name</td></tr>
+                            <tr><td><code>dpi</code></td><td>integer</td><td>No</td><td>Printer resolution, 100-1200. Defaults to <strong>203</strong></td></tr>
+                            <tr><td><code>max_width_dots</code></td><td>integer</td><td>No</td><td>Printhead width in dots, 100-10000. Defaults to <strong>832</strong> (4.10 in at 203 dpi)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Response</h3>
+                    <div class="code-wrap">
+            <pre>{
+  "dpi":            300,
+  "max_width_dots": 1248,
+  "count":          2,
+  "labels": [
+    "^XA\n^PW1248\n^LL1800\n^LH0,0\n^FO0,0\n^GFA,...^FS\n^XZ\n",
+    "^XA\n^PW1248\n^LL1800\n^LH0,0\n^FO0,0\n^GFA,...^FS\n^XZ\n"
+  ]
+}</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+
+                    <h3>Direct JavaScript Usage</h3>
+                    <div class="code-wrap">
+            <pre>const response = await fetch("https://api.quandosol.com/api/custom-labels/render-zpl", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-API-KEY": "YOUR_API_KEY",
+    "X-API-SECRET": "YOUR_API_TOKEN"
+  },
+  body: JSON.stringify({
+    label_name: "Label A",
+    amount: 2,
+    apiData: {
+      IMEI: "356938035643809",
+      Model_No: "iPhone 13",
+      Serial_No: "SN-A12345",
+      GT_Battery_Ratio: "92%",
+      Carriers: "Unlocked"
+    }
+  })
+});
+
+const { labels } = await response.json();
+
+// Hand each one to your own printer endpoint
+for (const zpl of labels) {
+  await sendToMyPrinter(zpl);
+}</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+
+                    <h3>Flow</h3>
+                    <div class="flow">
+                        <div class="flow-step">Markup JSON</div>
+                        <div class="flow-arrow">-&gt;</div>
+                        <div class="flow-step">Render to PNG</div>
+                        <div class="flow-arrow">-&gt;</div>
+                        <div class="flow-step">PNG -&gt; ZPL (^GFA)</div>
+                        <div class="flow-arrow">-&gt;</div>
+                        <div class="flow-step">Returned to your app</div>
+                        <div class="flow-arrow">-&gt;</div>
+                        <div class="flow-step">Your printer endpoint</div>
+                    </div>
+
+                    <h3>What the ZPL Contains</h3>
+                    <p>The label is rasterised at your requested density and returned as a single <code>^GFA</code> graphic field, with <code>^PW</code> and <code>^LL</code> set to match it exactly. Fonts, barcode symbologies and artwork are all resolved before the ZPL leaves the server, so the printer has nothing to look up - but the commands are not editable text and barcode fields.</p>
+
+                    <div class="callout note">
+                        <p>Pass <code>dpi</code> and <code>max_width_dots</code> to match the hardware you are sending to. Method 3 asks PrintNode how wide the printer is; here there is no printer to ask, so wrong values show up as a label that prints too wide or too small rather than as an error.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════════
+                 METHOD 7 - RENDER PDF
+            ══════════════════════════════════════════════ -->
+            <div class="method-section" id="method7" style="border-color: rgba(163,230,53,.3); margin-top: 28px;">
+                <div class="method-header" style="background: rgba(163,230,53,.06);">
+                    <div class="method-number" style="background:rgba(163,230,53,.15);color:var(--m7);">7</div>
+                    <div class="method-header-text">
+                        <h3 style="color:var(--m7);">Render PDF</h3>
+                        <p>Returns the PDF to your application, base64 encoded</p>
+                    </div>
+                    <span class="method-badge" style="color:var(--m7);border-color:rgba(163,230,53,.3);background:rgba(163,230,53,.08);">Server-Side</span>
+                </div>
+
+                <div class="method-body">
+                    <p>Same PDF as Method 4, handed back to you instead of sent to a printer. The file is built entirely inside Quandosol - no headless browser and no outside service in the path - so you can print it, archive it, email it, or queue it however you like.</p>
+
+                    <h3>Prerequisites</h3>
+                    <ul>
+                        <li>No PrintNode account and no registered printer</li>
+                        <li>No SDK required</li>
+                    </ul>
+
+                    <h3>API Endpoint</h3>
+                    <div class="code-wrap">
+                        <pre>POST /api/custom-labels/render-pdf</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+
+                    <h3>Request Body</h3>
+                    <div class="code-wrap">
+            <pre>{
+  "label_name": "Label A",
+  "amount":     1,
+  "apiData": {
+    "IMEI":             "356938035643809",
+    "Model_No":         "iPhone 13",
+    "Serial_No":        "SN-A12345",
+    "GT_Battery_Ratio": "92%",
+    "Carriers":         "Unlocked"
+  }
+}</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+
+                    <h3>Parameters</h3>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+                            <tbody>
+                            <tr><td><code>label_name</code></td><td>string</td><td>Yes</td><td>Exact label name in your account</td></tr>
+                            <tr><td><code>amount</code></td><td>integer</td><td>Yes</td><td>Copies to render, 1 or more</td></tr>
+                            <tr><td><code>apiData</code></td><td>object</td><td>Yes</td><td>The label's variable values, keyed by field name</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Response</h3>
+                    <div class="code-wrap">
+            <pre>{
+  "mime":     "application/pdf",
+  "encoding": "base64",
+  "count":    1,
+  "labels":   ["JVBERi0xLjcKJeLjz9M..."]
+}</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+
+                    <h3>Direct JavaScript Usage</h3>
+                    <div class="code-wrap">
+            <pre>const response = await fetch("https://api.quandosol.com/api/custom-labels/render-pdf", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-API-KEY": "YOUR_API_KEY",
+    "X-API-SECRET": "YOUR_API_TOKEN"
+  },
+  body: JSON.stringify({
+    label_name: "Label A",
+    amount: 1,
+    apiData: {
+      IMEI: "356938035643809",
+      Model_No: "iPhone 13",
+      Serial_No: "SN-A12345",
+      GT_Battery_Ratio: "92%",
+      Carriers: "Unlocked"
+    }
+  })
+});
+
+const { labels } = await response.json();
+
+// Turn the first label into a downloadable file in the browser
+const bytes = Uint8Array.from(atob(labels[0]), c =&gt; c.charCodeAt(0));
+const blob = new Blob([bytes], { type: "application/pdf" });
+const objectUrl = URL.createObjectURL(blob);
+const anchor = document.createElement("a");
+anchor.href = objectUrl;
+anchor.download = "label.pdf";
+anchor.click();
+setTimeout(() =&gt; URL.revokeObjectURL(objectUrl), 5000);</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+
+                    <div class="code-wrap">
+            <pre>// Node - write each copy to disk
+const { labels } = await response.json();
+labels.forEach((b64, i) =&gt;
+  fs.writeFileSync(`label-${i + 1}.pdf`, Buffer.from(b64, "base64"))
+);</pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+
+                    <h3>Flow</h3>
+                    <div class="flow">
+                        <div class="flow-step">Markup JSON</div>
+                        <div class="flow-arrow">-&gt;</div>
+                        <div class="flow-step">Vector PDF built server-side</div>
+                        <div class="flow-arrow">-&gt;</div>
+                        <div class="flow-step">Base64 in JSON response</div>
+                        <div class="flow-arrow">-&gt;</div>
+                        <div class="flow-step">Your app decodes and delivers</div>
+                    </div>
+
+                    <div class="callout warn">
+                        <p><strong>RFID labels:</strong> a PDF cannot carry an RFID tag payload, so a label containing an RFID element is refused here with <code>422</code> and the message <code>"RFID labels must be rendered as ZPL. PDF cannot encode RFID tags."</code> Use Method 6 (Render ZPL) for those labels.</p>
+                    </div>
+
+                    <div class="callout note">
+                        <p><strong>Methods 6 and 7 both record a print.</strong> They count toward your plan's print allowance exactly as printing through Quandosol does, so render what you intend to produce rather than calling them in a test loop.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════════
                  SECTION: Choosing a Method
             ══════════════════════════════════════════════ -->
             <section id="choosing">
@@ -1396,6 +1679,9 @@ setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);</pre>
                         <tr><td>Standard office or laser printer</td><td><strong style="color:var(--m4)">4 - PrintNode PDF</strong></td></tr>
                         <tr><td>Complex graphics or high-quality output</td><td><strong style="color:var(--m4)">4 - PrintNode PDF</strong></td></tr>
                         <tr><td>Need backend-owned SVG files and returned URLs</td><td><strong style="color:var(--m6)">5 - Export SVG</strong></td></tr>
+                        <tr><td>You already relay print jobs to your own printer endpoint</td><td><strong style="color:var(--m5)">6 - Render ZPL</strong></td></tr>
+                        <tr><td>Thermal printing without a PrintNode account</td><td><strong style="color:var(--m5)">6 - Render ZPL</strong></td></tr>
+                        <tr><td>Need the PDF file itself - to archive, email, or queue</td><td><strong style="color:var(--m7)">7 - Render PDF</strong></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1406,7 +1692,7 @@ setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);</pre>
             ══════════════════════════════════════════════ -->
             <section id="printer-setup">
                 <h2>Printer Setup Guide</h2>
-                <p>Required for Methods 3 and 4 (PrintNode). Methods 1, 2, and 5 do not need this setup.</p>
+                <p>Required for Methods 3 and 4 (PrintNode) only. Methods 1, 2, 5, 6, and 7 do not need this setup - Methods 6 and 7 return the rendered label to your application, so you deliver it to the printer yourself.</p>
 
                 <ol class="steps">
                     <li>Install the PrintNode client from <a href="https://www.printnode.com/download" target="_blank">https://www.printnode.com/download</a></li>
@@ -1436,7 +1722,8 @@ setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);</pre>
                         <tbody>
                         <tr><td><code>401</code></td><td>Unauthorized</td><td>Invalid or missing API credentials</td></tr>
                         <tr><td><code>404</code></td><td>Not Found</td><td>Label name does not exist in your account</td></tr>
-                        <tr><td><code>422</code></td><td>Unprocessable Entity</td><td>Missing or invalid request parameters</td></tr>
+                        <tr><td><code>422</code></td><td>Unprocessable Entity</td><td>Missing or invalid request parameters. On Methods 6 and 7 an unknown <code>label_name</code> also returns 422, not 404</td></tr>
+                        <tr><td><code>429</code></td><td>Too Many Requests</td><td>Over the per-minute rate limit for your API key (60/min by default)</td></tr>
                         <tr><td><code>500</code></td><td>Server Error</td><td>Rendering failure - contact support</td></tr>
                         </tbody>
                     </table>
