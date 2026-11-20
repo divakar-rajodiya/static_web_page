@@ -1,4 +1,4 @@
-Quandosol Custom<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -424,6 +424,13 @@ Quandosol Custom<!DOCTYPE html>
             color: #94a3b8;
         }
 
+        section a, .method-body a { color: var(--accent); }
+        .steps li > div { flex: 1; min-width: 0; }
+        .steps li strong.step-title { display: block; color: var(--text); margin-bottom: 4px; }
+        .steps li ul { margin: 6px 0 0; padding-left: 20px; list-style: disc; }
+        .steps li ul li { display: list-item; counter-increment: none; margin-bottom: 4px; }
+        .steps li ul li::before { content: none; }
+
         .steps li::before {
             content: counter(step);
             min-width: 26px; height: 26px;
@@ -502,6 +509,7 @@ Quandosol Custom<!DOCTYPE html>
         <a href="#overview"      class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Methods Overview</a>
         <a href="#eligibility"   class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Eligibility & Access</a>
         <a href="#variables"     class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>API Variables</a>
+        <a href="#dynamic-images" class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Dynamic Images</a>
         <a href="#auth"          class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Authentication</a>
         <a href="#setup"         class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>SDK & Files Setup</a>
 
@@ -516,7 +524,7 @@ Quandosol Custom<!DOCTYPE html>
 
         <span class="nav-section">Reference</span>
         <a href="#choosing"       class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Choosing a Method</a>
-        <a href="#printer-setup"  class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Printer Setup</a>
+        <a href="#printer-setup"  class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>PrintNode Setup Guide</a>
         <a href="#errors"         class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Error Codes</a>
         <a href="#troubleshooting"class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Troubleshooting</a>
         <a href="#best-practices" class="nav-link"><span class="nav-dot" style="background:#38bdf8"></span>Best Practices</a>
@@ -693,6 +701,53 @@ Quandosol Custom<!DOCTYPE html>
 
                 <div class="callout note">
                     <p>Variable names are <strong>case-sensitive</strong>. Make sure the keys in your API request exactly match the placeholders defined in the label template.</p>
+                </div>
+            </section>
+
+            <!-- ══════════════════════════════════════════════
+                 SECTION: Dynamic Images
+            ══════════════════════════════════════════════ -->
+            <section id="dynamic-images">
+                <h2>Dynamic Images</h2>
+                <p>An image element can show a different picture on every print, such as the photo of the item being labelled. You design the label with a default picture, and at print time the picture you send in <code>apiData</code> replaces it.</p>
+
+                <h3>1. Set up the image in the designer</h3>
+                <ol class="steps">
+                    <li><div>Add an <strong>Image</strong> element to your custom label and upload a <strong>default picture</strong>. It's shown while you design, and on prints where no picture is sent.</div></li>
+                    <li><div>Size and position the element. The picture you send is fitted inside this box, centred and without stretching.</div></li>
+                    <li><div>In the element properties, set <strong>Image source</strong> to one of your API fields, or choose <strong>Other API field</strong> and type a name, for example <code>item_picture</code>.</div></li>
+                    <li><div>Save the label.</div></li>
+                </ol>
+
+                <h3>2. Send the picture at print time</h3>
+                <p>Send the picture as a <strong>base64 data URI</strong> in <code>apiData</code>, using the field name you chose. This works with every print method.</p>
+                <div class="code-wrap">
+          <pre>{
+  "label_name": "BC-ITEM-4x2",
+  "amount": 1,
+  "apiData": {
+    "item_no": "1896-S",
+    "description": "ATHENS Desk",
+    "item_picture": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+  }
+}</pre>
+                    <button class="copy-btn">Copy</button>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Rule</th><th>Details</th></tr></thead>
+                        <tbody>
+                        <tr><td>Format</td><td><code>data:image/png;base64,...</code>, <code>image/jpeg</code>, <code>image/gif</code> or <code>image/webp</code>. URLs and SVG are not accepted.</td></tr>
+                        <tr><td>Size</td><td>Up to about 3 MB and 6000 px per side. About <strong>300 px</strong> is plenty for a 4&times;2 in label and keeps requests fast.</td></tr>
+                        <tr><td>No picture</td><td>Send an empty string, or leave the field out. The default picture is printed.</td></tr>
+                        <tr><td>Unreadable picture</td><td>The default picture is printed. The print is never rejected because of a picture.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="callout note">
+                    <p><strong>Thermal printers:</strong> ZPL printers (Method 3 and Method 6) print in black and white, so a photo comes out as dot shading. Logos and line drawings look best there. For photos, use a PDF method (Method 2, 4 or 7).</p>
                 </div>
             </section>
 
@@ -1086,9 +1141,10 @@ console.log(markups);</pre>
 
                     <h3>Prerequisites</h3>
                     <ul>
-                        <li>PrintNode client installed and running on the machine connected to the printer</li>
-                        <li>Printer registered in PrintNode dashboard - retrieve the <code>printer_id</code></li>
-                        <li>No SDK required</li>
+                        <li>PrintNode Client installed and running on the machine connected to the printer</li>
+                        <li>PrintNode API key saved in Quandosol under <strong>Management &rarr; Api Credential</strong></li>
+                        <li><code>printer_id</code> from the PrintNode dashboard, sent in the request or saved as the label's default printer</li>
+                        <li>No SDK required. First time? Follow the <a href="#printer-setup">PrintNode Setup Guide</a>.</li>
                     </ul>
 
                     <h3>API Endpoint</h3>
@@ -1117,8 +1173,9 @@ console.log(markups);</pre>
                     <h3>Response</h3>
                     <div class="code-wrap">
             <pre>{
-  "status":      "sent_to_printer",
-  "printer_dpi": 203
+  "status":            "sent_to_printer",
+  "printer_dpi":       203,
+  "print_node_job_id": "1234567890"
 }</pre>
                         <button class="copy-btn">Copy</button>
                     </div>
@@ -1209,9 +1266,10 @@ console.log(markups);</pre>
 
                     <h3>Prerequisites</h3>
                     <ul>
-                        <li>PrintNode client installed and running on the machine connected to the printer</li>
-                        <li>Printer registered in PrintNode dashboard - retrieve the <code>printer_id</code></li>
-                        <li>No SDK required</li>
+                        <li>PrintNode Client installed and running on the machine connected to the printer</li>
+                        <li>PrintNode API key saved in Quandosol under <strong>Management &rarr; Api Credential</strong></li>
+                        <li><code>printer_id</code> from the PrintNode dashboard, sent in the request or saved as the label's default printer</li>
+                        <li>No SDK required. First time? Follow the <a href="#printer-setup">PrintNode Setup Guide</a>.</li>
                     </ul>
 
                     <h3>API Endpoint</h3>
@@ -1244,6 +1302,7 @@ console.log(markups);</pre>
 }</pre>
                         <button class="copy-btn">Copy</button>
                     </div>
+                    <p>PDF jobs are queued, so the label reaches the printer a few seconds after this response. Check <strong>Print Jobs</strong> in the PrintNode dashboard to confirm delivery.</p>
 
                     <h3>Direct JavaScript Usage</h3>
                     <div class="code-wrap">
@@ -1692,23 +1751,113 @@ labels.forEach((b64, i) =&gt;
                  SECTION: Printer Setup
             ══════════════════════════════════════════════ -->
             <section id="printer-setup">
-                <h2>Printer Setup Guide</h2>
-                <p>Required for Methods 3 and 4 (PrintNode) only. Methods 1, 2, 5, 6, and 7 do not need this setup - Methods 6 and 7 return the rendered label to your application, so you deliver it to the printer yourself.</p>
+                <h2>PrintNode Setup Guide</h2>
+                <p>Follow these steps once to print labels straight to a physical printer from your own system with a single API call. Quandosol builds the label and PrintNode delivers it to the printer, so you don't need a browser or a print dialog.</p>
+                <p>Only <strong>Method 3 (PrintNode ZPL)</strong> and <strong>Method 4 (PrintNode PDF)</strong> need this setup. Methods 6 and 7 return the rendered label to your application, so you send it to the printer yourself.</p>
 
+                <h3>How it works</h3>
+                <div class="flow">
+                    <div class="flow-step">Your system</div>
+                    <div class="flow-arrow">-></div>
+                    <div class="flow-step">Quandosol API</div>
+                    <div class="flow-arrow">-></div>
+                    <div class="flow-step">PrintNode cloud</div>
+                    <div class="flow-arrow">-></div>
+                    <div class="flow-step">PrintNode Client (your PC)</div>
+                    <div class="flow-arrow">-></div>
+                    <div class="flow-step">Printer</div>
+                </div>
+
+                <h3>Before you start</h3>
+                <ul>
+                    <li>A Quandosol account on the <strong>Advanced plan</strong></li>
+                    <li>A label already designed in Quandosol. You'll need its exact <strong>name</strong>.</li>
+                    <li>A printer connected to a Windows, macOS or Linux computer that stays switched on</li>
+                    <li>A <strong>PrintNode</strong> account, free or paid, from <a href="https://www.printnode.com" target="_blank" rel="noopener">printnode.com</a></li>
+                </ul>
+
+                <h3>Step-by-step</h3>
                 <ol class="steps">
-                    <li>Install the PrintNode client from <a href="https://www.printnode.com/download" target="_blank">https://www.printnode.com/download</a></li>
-                    <li>Launch PrintNode and connect your printer</li>
-                    <li>Log in to your PrintNode dashboard and navigate to <strong>Printers</strong></li>
-                    <li>Copy the <strong>Printer ID</strong> for your target printer</li>
-                    <li>Pass the printer ID in your API request as <code>printer_id</code></li>
+                    <li><div>
+                        <strong class="step-title">Install the PrintNode Client on the printer's computer</strong>
+                        Download it from <a href="https://www.printnode.com/download" target="_blank" rel="noopener">printnode.com/download</a>, install it on the computer the printer is connected to, and sign in with your PrintNode account. Your printer should appear in the client with an <strong>online</strong> status.
+                    </div></li>
+                    <li><div>
+                        <strong class="step-title">Create a PrintNode API key</strong>
+                        In the PrintNode web dashboard, open <strong>Account → API</strong> and create a new key (for example, name it <code>Quandosol</code>). Copy the key.
+                    </div></li>
+                    <li><div>
+                        <strong class="step-title">Find your Printer ID</strong>
+                        In the PrintNode dashboard, open <strong>Printers</strong>. The number in the <strong>ID</strong> column is your Printer ID (for example, <code>73456789</code>).
+                    </div></li>
+                    <li><div>
+                        <strong class="step-title">Save the PrintNode API key in Quandosol</strong>
+                        In Quandosol, open <strong>Management → Api Credential</strong>.
+                        <ul>
+                            <li>If you don't have credentials yet, click <strong>Generate API Key &amp; Secret</strong> and store both values safely. <strong>The secret is shown only once.</strong></li>
+                            <li>In the <strong>PrintNode API Key</strong> box, paste the key from step 2 and click <strong>Save PrintNode API Key</strong>.</li>
+                            <li>A green message, <em>"PrintNode API key is saved"</em>, confirms it worked.</li>
+                        </ul>
+                    </div></li>
+                    <li><div>
+                        <strong class="step-title">(Optional) Set a default printer on the label</strong>
+                        Open <strong>Labels</strong>, click <strong>Edit</strong> on your label, enter the Printer ID in <strong>PrintNode Printer ID (Optional)</strong>, and save. Requests for this label then don't need to send <code>printer_id</code>. If a request does send <code>printer_id</code>, that value is used instead.
+                    </div></li>
+                    <li><div>
+                        <strong class="step-title">Choose ZPL or PDF</strong>
+                        Use <a href="#method3">Method 3 - PrintNode ZPL</a> for Zebra and other ZPL thermal printers. It's fastest, and it's <strong>required for RFID labels</strong>. Use <a href="#method4">Method 4 - PrintNode PDF</a> for any other printer that can print a PDF.
+                    </div></li>
+                    <li><div>
+                        <strong class="step-title">Send a print request</strong>
+                        Call the endpoint with your Quandosol API credentials. Your PrintNode key is never sent in the request, because Quandosol uses the one saved in step 4.
+                    </div></li>
                 </ol>
 
                 <div class="code-wrap">
-          <pre>// Example printer IDs
-"printer_id": 75236019    // Divakar's account - ZPL printer
-"printer_id": 75208784    // Vinc's ZPL printer (ZDesigner ZD500R-203dpi)
-"printer_id": 75208780    // Brother HL-5470DW series</pre>
+          <pre>curl -X POST "https://api.quandosol.com/api/custom-labels/print-node" \
+  -H "Content-Type: application/json" \
+  -H "X-API-KEY: YOUR_API_KEY" \
+  -H "X-API-SECRET: YOUR_API_TOKEN" \
+  -d '{
+    "label_name": "Label A",
+    "amount": 1,
+    "printer_id": 73456789,
+    "apiData": { "IMEI": "356938035643809", "Model_No": "iPhone 13" }
+  }'</pre>
                     <button class="copy-btn">Copy</button>
+                </div>
+
+                <h3>Request fields</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Field</th><th>Required</th><th>Description</th></tr></thead>
+                        <tbody>
+                        <tr><td><code>label_name</code></td><td>Yes</td><td>Exact name of the label in Quandosol, including capitals and spaces</td></tr>
+                        <tr><td><code>amount</code></td><td>Yes</td><td>Number of prints (minimum 1). Counts toward your plan's print limit.</td></tr>
+                        <tr><td><code>apiData</code></td><td>Yes</td><td>Values for the label's API variables. Keys are case-sensitive.</td></tr>
+                        <tr><td><code>printer_id</code></td><td>Only if no default is set</td><td>PrintNode Printer ID. Required unless the label has a default printer saved (step 5).</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="callout tip">
+                    <p>Test the setup with <strong>Method 1 (Fetch Markups)</strong> first to confirm your <code>apiData</code> fills the label correctly, then switch to PrintNode. You can see every job, and its status, under <strong>Print Jobs</strong> in the PrintNode dashboard.</p>
+                </div>
+
+                <h3>PrintNode error messages</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Message</th><th>What to do</th></tr></thead>
+                        <tbody>
+                        <tr><td><code>PrintNode API key is required...</code></td><td>Complete step 4. The <code>X-API-KEY</code> you send must belong to the same credentials where the PrintNode key is saved.</td></tr>
+                        <tr><td><code>Label not found</code></td><td>Check <code>label_name</code>. It must exactly match the label's name in Quandosol.</td></tr>
+                        <tr><td><code>printer_id is required when the label does not have a PrintNode printer ID saved</code></td><td>Send <code>printer_id</code> in the request, or complete step 5.</td></tr>
+                        <tr><td><code>RFID labels must use the raw ZPL PrintNode endpoint...</code></td><td>Use Method 3 (<code>/print-node</code>) instead of Method 4.</td></tr>
+                        <tr><td><code>PrintNode print job failed: ...</code></td><td>The PrintNode key is invalid or revoked, or the Printer ID doesn't belong to that PrintNode account. Check steps 2 and 3.</td></tr>
+                        <tr><td>Request succeeds but nothing prints</td><td>Make sure the PrintNode Client is running, the computer is awake and the printer shows <strong>online</strong>. Check <strong>Print Jobs</strong> in PrintNode.</td></tr>
+                        <tr><td>Label too small, too large or cut off</td><td>Match the label size in Quandosol to the media in the printer, and install the manufacturer's printer driver so PrintNode reports the correct DPI.</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </section>
 
